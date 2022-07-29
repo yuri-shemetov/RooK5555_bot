@@ -44,11 +44,11 @@ async def process_message(message: types.Message, state: FSMContext):
                         - Decimal(0.5)
                     )
                     / Decimal(BTC_BYN),
-                    10,
+                    8,
                 )
 
                 BTC_USD = currency_usd.currency_rate()
-                ONE_BIT = round(Decimal(3 / BTC_USD), 10)
+                ONE_BIT = round(Decimal(3 / BTC_USD), 8)
 
                 if Decimal(balance) >= Decimal(money + ONE_BIT):
 
@@ -93,7 +93,7 @@ async def process_message(message: types.Message, state: FSMContext):
 
             elif Decimal(int(user_message)) > 1000:
                 await message.reply(
-                    f"Ваша сумма должна быть не более 1000 BYN (Нужно больше - обращайся к @StoProBTC): "
+                    f"Ваша сумма должна быть не более 1000 BYN (Нужно больше - обращайся к @RooK5555): "
                 )
             else:
                 await message.reply(f"Ваша сумма должна быть не менее 50 BYN: ")

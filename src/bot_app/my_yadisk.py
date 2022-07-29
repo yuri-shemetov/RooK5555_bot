@@ -3,7 +3,7 @@ import yadisk
 
 from bot_app.my_local_settings import yadisk_id, ya_secret, yadisk_token
 from datetime import datetime
-from os import mkdir
+from os import mkdir, path
 
 
 def save_to_yadisk(id_user, path_jpg):
@@ -12,18 +12,14 @@ def save_to_yadisk(id_user, path_jpg):
     mounth = datetime.strftime(datetime.now(), "%y_%m")
     order = datetime.strftime(datetime.now(), "%d/%m/%y-%H:%M:%S")
 
-    try:
+    if not y.exists(f"/{mounth}"):
         y.mkdir(f"/{mounth}")
-    except:
-        pass
-    try:
+
+    if not y.exists(f"/{mounth}/00_PHOTO"):
         y.mkdir(f"/{mounth}/00_PHOTO")
-    except:
-        pass
-    try:
+
+    if not path.exists(f"{mounth}/"):
         mkdir(f"{mounth}/")
-    except:
-        pass
 
     myData = [
         [
@@ -56,14 +52,11 @@ def save_to_yadisk_wallet(username, lastname, id_user, user_message):
     date = datetime.strftime(datetime.now(), "%y_%m_%d__%H-%M-%S")
     mounth = datetime.strftime(datetime.now(), "%y_%m")
 
-    try:
+    if not path.exists(f"wallet/"):
         mkdir(f"wallet/")
-    except:
-        pass
-    try:
+
+    if not y.exists(f"/{mounth}/00_WALLET"):
         y.mkdir(f"/{mounth}/00_WALLET")
-    except:
-        pass
 
     file_name = "wallet/" + f"{date}.txt"
     with open(file_name, "w+") as message:

@@ -1,6 +1,6 @@
 import requests
 
-from bit import PrivateKey as Key
+from bit import PrivateKeyTestnet as Key
 from bot_app.my_local_settings import private_key
 
 

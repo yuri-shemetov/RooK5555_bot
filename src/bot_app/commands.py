@@ -11,6 +11,7 @@ from bot_app.app import dp, bot, db, db_applications
 from bot_app.cleaner import (
     get_files_photos,
     get_files_wallets,
+    get_files_messages,
     remove_old_files,
 )
 from bot_app.keybords import (
@@ -26,8 +27,8 @@ from bot_app.keybords import (
     inline_photo_ok,
     inline_rate,
     inline_replay_new,
-    inline_start,
 )
+from bot_app.mail import get_new_email
 from bot_app.my_local_settings import ADMIN
 from bot_app.my_yadisk import save_to_yadisk, save_to_yadisk_wallet
 from bot_app.states import GoStates
@@ -67,7 +68,7 @@ CONTENT_TYPES = [
 # Start
 @dp.message_handler(commands=["start"], state="*")
 async def send_welcome(message: types.Message):
-    await message.reply(messages.WELCOME_MESSAGE, reply_markup=inline_start)
+    await message.reply(messages.WELCOME_MESSAGE, reply_markup=inline_continue)
 
 
 # Terms
@@ -298,12 +299,12 @@ async def process_message(message: types.Message, state: FSMContext):
             data["text"] = message.text
             user_message = data["text"]
 
-        user_data = db.get_photo_price_translation(message.from_user.id)[0]
+        # user_data = db.get_photo_price_translation(message.from_user.id)[0]
 
-        with open(user_data[0], "rb") as photo:
-            user_photo = photo.read()
-        user_byn = user_data[1]
-        user_btc = user_data[2]
+        # with open(user_data[0], "rb") as photo:
+        #     user_photo = photo.read()
+        # user_byn = user_data[1]
+        # user_btc = user_data[2]
 
     except:
         await message.reply(messages.ERROR_PARSER)
@@ -312,23 +313,23 @@ async def process_message(message: types.Message, state: FSMContext):
 
     # Message for approve by admin about payment
 
-    try:
-        db.update_subscription_address_reviewed_and_approve(
-            message.from_user.id, address=user_message
-        )
+    # try:
+    #     db.update_subscription_address_reviewed_and_approve(
+    #         message.from_user.id, address=user_message
+    #     )
 
-        await bot.send_photo(ADMIN, user_photo)
-        await bot.send_message(
-            ADMIN,
-            f"Пользователь ID № {message.from_user.id}  @{message.from_user.username} желает приобрести {user_btc} BTC на сумму {user_byn} BYN.",
-            parse_mode="HTML",
-            reply_markup=inline_approved_payment,
-        )
+    #     await bot.send_photo(ADMIN, user_photo)
+    #     await bot.send_message(
+    #         ADMIN,
+    #         f"Пользователь ID № {message.from_user.id}  @{message.from_user.username} желает приобрести {user_btc} BTC на сумму {user_byn} BYN.",
+    #         parse_mode="HTML",
+    #         reply_markup=inline_approved_payment,
+    #     )
 
-    except:
-        await message.reply(messages.ERROR_SENDER)
-        await state.finish()
-        return
+    # except:
+    #     await message.reply(messages.ERROR_SENDER)
+    #     await state.finish()
+    #     return
 
     # Remember address and Send address to yandex_disk
 
@@ -358,39 +359,39 @@ async def process_message(message: types.Message, state: FSMContext):
     # Waiting for a transaction
 
     try:
+        price = db.get_subscriptions_all_price(message.from_user.id)[0][0]
         time_wait = 0
 
-        while time_wait != 2881:  # 24 hours
+        while time_wait != 600:  # 10 minutes
 
-            # check database
-            approve = db.get_subscriptions_approve(message.from_user.id)[0][0]
+            # refund money from email for saved receipts if payment was successful
+            money = get_new_email(price=price)
 
-            # print(money)
-            if approve:
+            if Decimal(money) == Decimal(price):
                 # transaction
                 bitcoins = db.get_subscriptions_translation(message.from_user.id)[0][0]
                 execute_transaction(
-                    dest_address=user_message, translation=round(Decimal(bitcoins), 10)
+                    dest_address=user_message, translation=round(Decimal(bitcoins), 8)
                 )
 
                 # show a message about successful transaction and a wallet
                 wallet = check_wallet(user_message)
-                with open("animation/animation.gif.mp4", "rb") as video:
-                    await bot.send_video(
+                with open("animation/successful.jpeg", "rb") as photo:
+                    await bot.send_photo(
                         message.from_user.id,
-                        video=video,
+                        photo=photo,
                         caption=messages.GET_APLICATION + wallet,
                         reply_markup=inline_replay_new,
                     )
 
+                # send a message about successful payment
                 await bot.send_message(
                     ADMIN,
-                    f"Бот перевел BTC пользователю ID № {message.from_user.id}  @{message.from_user.username}. \
-                        ✅️ Отследить его транзакцию можно по ссылке: {wallet}",
+                    f"✅️ Бот перевел {bitcoins} BTC пользователю ID № {message.from_user.id}  @{message.from_user.username}. \
+                    Отследить его транзакцию можно по ссылке: {wallet}",
                     parse_mode="HTML",
                 )
 
-                # Finish conversation
                 await state.finish()
 
                 # delete old media files
@@ -401,61 +402,10 @@ async def process_message(message: types.Message, state: FSMContext):
                 files = get_files_wallets(path="wallet/")
                 remove_old_files(path="wallet/", files=files)
 
-                # approve is None
-                db.update_subscription_reviewed_and_approve(
-                    user_id=message.from_user.id
-                )
+                # delete old messages (receipts) files
+                files = get_files_messages(path="message/")
+                remove_old_files(path="message/", files=files)
 
-                break
-
-            elif approve == False:
-                await bot.send_message(
-                    message.from_user.id,
-                    messages.REJECT_TRANSACTION,
-                    reply_markup=inline_replay_new,
-                    parse_mode="HTML",
-                )
-
-                # Finish conversation
-                await state.finish()
-
-                # delete old media files
-                files = get_files_photos(path="media/")
-                remove_old_files(path="media/", files=files)
-
-                # delete old wallets files
-                files = get_files_wallets(path="wallet/")
-                remove_old_files(path="wallet/", files=files)
-
-                # approve is None
-                db.update_subscription_reviewed_and_approve(
-                    user_id=message.from_user.id
-                )
-
-                break
-            
-            elif time_wait == 20:
-                await bot.send_message(
-                    message.from_user.id,
-                    messages.WAIT_10_MINUTES,
-                )
-
-            elif time_wait == 2880:
-                await bot.send_message(
-                    message.from_user.id,
-                    messages.WAIT_24_HOURS,
-                )
-
-                # Finish conversation
-                await state.finish()
-
-                # delete old media files
-                files = get_files_photos(path="media/")
-                remove_old_files(path="media/", files=files)
-
-                # delete old wallets files
-                files = get_files_wallets(path="wallet/")
-                remove_old_files(path="wallet/", files=files)
 
                 # approve is None
                 db.update_subscription_reviewed_and_approve(
@@ -464,8 +414,17 @@ async def process_message(message: types.Message, state: FSMContext):
 
                 break
 
-            await asyncio.sleep(30)
+            await asyncio.sleep(10)
             time_wait += 1
+        
+        if Decimal(money) != Decimal(price):
+            await message.answer(
+                messages.CHECK_ERROR_MESSAGE_FROM_BANK,
+                reply_markup=inline_replay_new,
+                parse_mode="HTML"
+            )
+            await state.finish()
+            return
 
     except:
         await message.reply(

@@ -37,20 +37,20 @@ async def process_message(message: types.Message, state: FSMContext):
             BTC_BYN = currency_rate()
             MIN_BTC = round(
                 Decimal((50 - Decimal(open_settings.fees()) - Decimal(0.5)) / BTC_BYN),
-                10,
+                8,
             )
             MAX_BTC = round(
                 Decimal(
                     (1000 - Decimal(open_settings.fees()) - Decimal(0.5)) / BTC_BYN
                 ),
-                10,
+                8,
             )
             if Decimal(user_message) >= MIN_BTC and Decimal(user_message) <= MAX_BTC:
                 
                 balance = get_balance_bitcoins()
 
                 BTC_USD = currency_usd.currency_rate()
-                ONE_BIT = round(Decimal(3 / BTC_USD), 10)
+                ONE_BIT = round(Decimal(3 / BTC_USD), 8)
 
                 if (Decimal(user_message) + Decimal(ONE_BIT)) <= Decimal(balance):
                     money = round(
@@ -101,7 +101,7 @@ async def process_message(message: types.Message, state: FSMContext):
 
             elif Decimal(user_message) > MAX_BTC:
                 await message.reply(
-                    f"Количество биткоинов должно быть не более {MAX_BTC} BTC (Нужно больше BTC - обращайся к @StoProBTC):"
+                    f"Количество биткоинов должно быть не более {MAX_BTC} BTC (Нужно больше BTC - обращайся к @RooK5555):"
                 )
             else:
                 await message.reply(

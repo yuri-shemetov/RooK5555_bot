@@ -6,7 +6,7 @@ from bot_app.my_local_settings import ADDR_FROM, PASSWORD_FOR_EMAIL
 
 from datetime import datetime
 from decimal import *
-from os import mkdir
+from os import mkdir, path
 
 
 def get_new_email(price, servername="imap.yandex.ru"):
@@ -61,10 +61,10 @@ def get_new_email(price, servername="imap.yandex.ru"):
                         or part.get_content_type() == "text/html"
                     ):
                         body = part.get_payload(decode=True)
-                        try:
+                        
+                        if not path.exists("message/"):
                             mkdir(f"message/")
-                        except:
-                            pass
+
                         file_name = "message/" + f"{date_message}.txt"
                         output_file = open(file_name, "w", encoding="utf-8")
                         output_file.write(
