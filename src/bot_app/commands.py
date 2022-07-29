@@ -19,7 +19,6 @@ from bot_app.keybords import (
     inline_admin_and_button_turn_off,
     inline_answer_for_apply,
     inline_apply,
-    inline_approved_payment,
     inline_cancel,
     inline_continue,
     inline_new,
@@ -84,6 +83,7 @@ async def send_terms(callback_query: types.CallbackQuery):
     if callback_query.from_user.id in ban_users_list:
         await bot.send_message(callback_query.from_user.id, messages.BLACK_LIST)
         await GoStates.ban.set()
+        return
 
     # Admin user and button "turn_off"
     elif callback_query.from_user.id == ADMIN and on_or_off == "on":

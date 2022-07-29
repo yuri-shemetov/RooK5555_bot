@@ -9,6 +9,7 @@ inline_button_applications = InlineKeyboardButton("Списки", callback_data=
 inline_button_apply = InlineKeyboardButton("Согласен / запросить доступ", callback_data="apply")
 inline_button_approve_transaction = InlineKeyboardButton("Одобрить", callback_data="approve_transaction")
 inline_button_balance_btc = InlineKeyboardButton("Баланс BTC", callback_data="balance")
+inline_button_black_list = InlineKeyboardButton("Черный список", callback_data="black_list")
 inline_button_btc = InlineKeyboardButton("BTC", callback_data="btc")
 inline_button_byn = InlineKeyboardButton("BYN", callback_data="byn")
 inline_button_cancel = InlineKeyboardButton("Отменить", callback_data="cancel")
@@ -71,9 +72,10 @@ inline_admin_and_button_turn_on.add(
 inline_admin_and_button_turn_off.add(
     inline_button_setting,
     inline_button_requisites,
+    inline_button_balance_btc,
+    inline_button_black_list,
     inline_button_turn_off,
     inline_button_stop_bot_server,
-    inline_button_balance_btc
 )
 inline_answer.row(inline_button_yes, inline_button_cancel,)
 inline_answer_for_apply.row(inline_button_answer_for_apply_yes, inline_button_answer_for_apply_no,)
