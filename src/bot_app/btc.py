@@ -1,3 +1,4 @@
+import imp
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
@@ -8,6 +9,7 @@ from bot_app.app import dp, bot, db
 from bot_app.keybords import inline_answer, inline_cancel
 from bot_app.states import GoStates
 from bot_app.currency_byn import currency_rate
+from bot_app.open_settings import min_amount, max_amount
 from bot_app.transactions import get_balance_bitcoins
 
 from datetime import datetime
@@ -35,13 +37,15 @@ async def process_message(message: types.Message, state: FSMContext):
                 data["text"] = message.text
                 user_message = data["text"]
             BTC_BYN = currency_rate()
+            MIN_BYN = min_amount()
             MIN_BTC = round(
-                Decimal((50 - Decimal(open_settings.fees()) - Decimal(0.5)) / BTC_BYN),
+                Decimal((MIN_BYN - Decimal(open_settings.fees()) - Decimal(0.5)) / BTC_BYN),
                 8,
             )
+            MAX_BYN = max_amount()
             MAX_BTC = round(
                 Decimal(
-                    (1000 - Decimal(open_settings.fees()) - Decimal(0.5)) / BTC_BYN
+                    (MAX_BYN - Decimal(open_settings.fees()) - Decimal(0.5)) / BTC_BYN
                 ),
                 8,
             )

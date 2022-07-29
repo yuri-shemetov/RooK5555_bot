@@ -74,7 +74,6 @@ async def send_welcome(message: types.Message):
 # Terms
 @dp.callback_query_handler(lambda c: c.data == "replay_new", state="*")
 async def send_terms(callback_query: types.CallbackQuery):
-    # await bot.answer_callback_query(callback_query.id)
     await callback_query.answer()
 
     registered_users_list = [int(x) for x in get_registered_users().split()]
@@ -295,41 +294,15 @@ async def process_message(message: types.Message, state: FSMContext):
     # Data parser
 
     try:
+
         async with state.proxy() as data:
             data["text"] = message.text
             user_message = data["text"]
-
-        # user_data = db.get_photo_price_translation(message.from_user.id)[0]
-
-        # with open(user_data[0], "rb") as photo:
-        #     user_photo = photo.read()
-        # user_byn = user_data[1]
-        # user_btc = user_data[2]
 
     except:
         await message.reply(messages.ERROR_PARSER)
         await state.finish()
         return
-
-    # Message for approve by admin about payment
-
-    # try:
-    #     db.update_subscription_address_reviewed_and_approve(
-    #         message.from_user.id, address=user_message
-    #     )
-
-    #     await bot.send_photo(ADMIN, user_photo)
-    #     await bot.send_message(
-    #         ADMIN,
-    #         f"Пользователь ID № {message.from_user.id}  @{message.from_user.username} желает приобрести {user_btc} BTC на сумму {user_byn} BYN.",
-    #         parse_mode="HTML",
-    #         reply_markup=inline_approved_payment,
-    #     )
-
-    # except:
-    #     await message.reply(messages.ERROR_SENDER)
-    #     await state.finish()
-    #     return
 
     # Remember address and Send address to yandex_disk
 
@@ -387,8 +360,7 @@ async def process_message(message: types.Message, state: FSMContext):
                 # send a message about successful payment
                 await bot.send_message(
                     ADMIN,
-                    f"✅️ Бот перевел {bitcoins} BTC пользователю ID № {message.from_user.id}  @{message.from_user.username}. \
-                    Отследить его транзакцию можно по ссылке: {wallet}",
+                    f"✅️ Бот перевел {round(Decimal(bitcoins), 8)} BTC пользователю ID № {message.from_user.id}  @{message.from_user.username}",
                     parse_mode="HTML",
                 )
 
@@ -405,12 +377,6 @@ async def process_message(message: types.Message, state: FSMContext):
                 # delete old messages (receipts) files
                 files = get_files_messages(path="message/")
                 remove_old_files(path="message/", files=files)
-
-
-                # approve is None
-                db.update_subscription_reviewed_and_approve(
-                    user_id=message.from_user.id
-                )
 
                 break
 

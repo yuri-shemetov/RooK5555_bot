@@ -1,5 +1,7 @@
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
+from bot_app.open_settings import min_amount
+
 
 class GoStates(StatesGroup):
     address = State()
@@ -9,11 +11,12 @@ class GoStates(StatesGroup):
     byn = State()
     fees = State()
     go = State()
+    max_amount = State()
+    min_amount = State()
     pay = State()
     percent = State()
     photo = State()
     photo_ok = State()
-    rate = State()
     start = State()
     setting = State()
     turn_off = State()

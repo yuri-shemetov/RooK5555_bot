@@ -13,25 +13,28 @@ async def button_click_call_back(
     callback_query: types.CallbackQuery, state: FSMContext
 ):
     await bot.answer_callback_query(callback_query.id)
-    file_rate = open("bot_app/admin/settings/currency_rate.txt")
-    now_rate = file_rate.read()
-    file_rate.close()
 
-    file_fees = open("bot_app/admin/settings/fees.txt")
-    now_fees = file_fees.read()
-    file_fees.close()
+    with open("bot_app/admin/settings/currency_rate.txt", "r") as file_rate:
+        now_rate = file_rate.read()
 
-    file_percent = open("bot_app/admin/settings/percent.txt")
-    now_percent = file_percent.read()
-    file_percent.close()
+    with open("bot_app/admin/settings/fees.txt", "r") as file_fees:
+        now_fees = file_fees.read()
 
-    file_byn = open("bot_app/admin/settings/byn.txt")
-    now_byn = file_byn.read()
-    file_byn.close()
+    with open("bot_app/admin/settings/percent.txt", "r") as file_percent:
+        now_percent = file_percent.read()
+
+    with open("bot_app/admin/settings/byn.txt", "r") as file_byn:
+        now_byn = file_byn.read()
+
+    with open("bot_app/admin/settings/min_amount.txt", "r") as file_min:
+        min_amount = file_min.read()
+
+    with open("bot_app/admin/settings/max_amount.txt", "r") as file_max:
+        max_amount = file_max.read()
 
     await bot.send_message(
         callback_query.from_user.id,
-        f"Мин. курс: {now_rate} BYN;\nКомиссия: {now_fees} BYN;\nПроцент: {now_percent} %;\n1USD: {now_byn} BYN;"
+        f"Мин. курс: {now_rate} BYN;\nКомиссия: {now_fees} BYN;\nПроцент: {now_percent} %;\n1USD: {now_byn} BYN;\nМин. сумма сделки: {min_amount} BYN;\nМaкс. сумма сделки: {max_amount} BYN."
         + messages.SETTING,
         reply_markup=inline_setting,
     )
@@ -159,3 +162,69 @@ async def process_message(message: types.Message, state: FSMContext):
         await message.reply(
             "Введите корректный курс, десятичную дробь пишите только точкой!"
         )
+
+
+# Upload Set_min_amount
+@dp.callback_query_handler(lambda c: c.data == "min_amount", state=GoStates.rate)
+async def button_click_call_back(
+    callback_query: types.CallbackQuery, state: FSMContext
+):
+    await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(
+        callback_query.from_user.id, "Введите минимальную сумму сделки, BYN"
+    )
+    await state.finish()
+    await GoStates.min_amount.set()
+
+
+# Successful Set_min_amount
+@dp.message_handler(content_types=["text"], state=GoStates.min_amount)
+async def process_message(message: types.Message, state: FSMContext):
+    try:
+        async with state.proxy() as data:
+            data["text"] = message.text
+            user_message = int(data["text"])
+        with open("bot_app/admin/settings/min_amount.txt", "w+") as file:
+            file.write(f"{user_message}")
+
+        await message.reply(
+            "Минимальная сумма сделки успешно изменена!",
+            reply_markup=inline_answer_to_main,
+        )
+        await state.finish()
+        await GoStates.setting.set()
+    except:
+        await message.reply("Введите корректно сумму")
+
+
+# Upload Set_max_amount
+@dp.callback_query_handler(lambda c: c.data == "max_amount", state=GoStates.rate)
+async def button_click_call_back(
+    callback_query: types.CallbackQuery, state: FSMContext
+):
+    await bot.answer_callback_query(callback_query.id)
+    await bot.send_message(
+        callback_query.from_user.id, "Введите максимальную сумму сделки, BYN"
+    )
+    await state.finish()
+    await GoStates.max_amount.set()
+
+
+# Successful Set_max_amount
+@dp.message_handler(content_types=["text"], state=GoStates.max_amount)
+async def process_message(message: types.Message, state: FSMContext):
+    try:
+        async with state.proxy() as data:
+            data["text"] = message.text
+            user_message = int(data["text"])
+        with open("bot_app/admin/settings/max_amount.txt", "w+") as file:
+            file.write(f"{user_message}")
+
+        await message.reply(
+            "Максимальная сумма сделки успешно изменена!",
+            reply_markup=inline_answer_to_main,
+        )
+        await state.finish()
+        await GoStates.setting.set()
+    except:
+        await message.reply("Введите корректно сумму")

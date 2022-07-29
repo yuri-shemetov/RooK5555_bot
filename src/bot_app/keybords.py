@@ -15,6 +15,8 @@ inline_button_cancel = InlineKeyboardButton("Отменить", callback_data="c
 inline_button_continue = InlineKeyboardButton("Продолжить", callback_data="replay_new")
 inline_button_currency_rate = InlineKeyboardButton("Мин. курс", callback_data="rate")
 inline_button_fees = InlineKeyboardButton("Комиссия", callback_data="fees")
+inline_button_min_amount = InlineKeyboardButton("Мин. сумма сделки", callback_data="min_amount")
+inline_button_max_amount = InlineKeyboardButton("Макс. сумма сделки", callback_data="max_amount")
 inline_button_new = InlineKeyboardButton("Согласен / создать новую заявку", callback_data="new")
 inline_button_paid = InlineKeyboardButton("Оплачено", callback_data="paid")
 inline_button_percent = InlineKeyboardButton("Процент", callback_data="percent")
@@ -59,8 +61,20 @@ inline_usd_byn = InlineKeyboardMarkup()
 
 # Out
 
-inline_admin_and_button_turn_on.add(inline_button_setting, inline_button_requisites, inline_button_turn_on, inline_button_stop_bot_server, inline_button_balance_btc)
-inline_admin_and_button_turn_off.add(inline_button_setting, inline_button_requisites, inline_button_turn_off, inline_button_stop_bot_server, inline_button_balance_btc)
+inline_admin_and_button_turn_on.add(
+    inline_button_setting,
+    inline_button_requisites,
+    inline_button_turn_on,
+    inline_button_stop_bot_server,
+    inline_button_balance_btc,
+)
+inline_admin_and_button_turn_off.add(
+    inline_button_setting,
+    inline_button_requisites,
+    inline_button_turn_off,
+    inline_button_stop_bot_server,
+    inline_button_balance_btc
+)
 inline_answer.row(inline_button_yes, inline_button_cancel,)
 inline_answer_for_apply.row(inline_button_answer_for_apply_yes, inline_button_answer_for_apply_no,)
 inline_answer_for_requisiters.row(inline_button_answer_for_requisiters_yes, inline_button_answer_to_main,)
@@ -74,5 +88,13 @@ inline_pay.add(inline_button_paid, inline_button_cancel,)
 inline_photo_ok.add(inline_button_photo_ok,)
 inline_rate.row(inline_button_byn, inline_button_btc,)
 inline_replay_new.row(inline_button_replay_new,)
-inline_setting.add(inline_button_currency_rate, inline_button_fees, inline_button_percent, inline_button_usd_byn, inline_button_answer_to_main,)
+inline_setting.add(
+    inline_button_currency_rate, 
+    inline_button_fees,
+    inline_button_percent,
+    inline_button_usd_byn,
+    inline_button_min_amount,
+    inline_button_max_amount,
+    inline_button_answer_to_main,
+)
 inline_stop.row(inline_button_answer_to_main, inline_button_stop,)

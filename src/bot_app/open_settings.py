@@ -29,3 +29,17 @@ def byn():
         now_byn = file_byn.read()
         BYN = Decimal(now_byn)
     return BYN
+
+
+def min_amount():
+    with open("bot_app/admin/settings/min_amount.txt", "r") as file_min:
+        min_amount = file_min.read()
+        MIN = Decimal(min_amount)
+    return MIN
+
+
+def max_amount():
+    with open("bot_app/admin/settings/max_amount.txt", "r") as file_max:
+        max_amount = file_max.read()
+        MAX = Decimal(max_amount)
+    return MAX

@@ -7,6 +7,7 @@ from bot_app import messages
 from bot_app.app import dp, bot, db
 from bot_app.currency_byn import currency_rate
 from bot_app.keybords import inline_answer, inline_cancel
+from bot_app.open_settings import min_amount, max_amount
 from bot_app.states import GoStates
 from bot_app.transactions import get_balance_bitcoins
 
@@ -32,7 +33,9 @@ async def process_message(message: types.Message, state: FSMContext):
             async with state.proxy() as data:
                 data["text"] = message.text
                 user_message = data["text"]
-            if Decimal(int(user_message)) >= 50 and Decimal(int(user_message)) <= 1000:
+            MIN_BYN = min_amount()
+            MAX_BYN = max_amount()
+            if Decimal(int(user_message)) >= MIN_BYN and Decimal(int(user_message)) <= MAX_BYN:
 
                 balance = get_balance_bitcoins()
 
@@ -91,12 +94,12 @@ async def process_message(message: types.Message, state: FSMContext):
                         reply_markup=inline_cancel,
                     )
 
-            elif Decimal(int(user_message)) > 1000:
+            elif Decimal(int(user_message)) > MAX_BYN:
                 await message.reply(
-                    f"Ваша сумма должна быть не более 1000 BYN (Нужно больше - обращайся к @RooK5555): "
+                    f"Ваша сумма должна быть не более {MAX_BYN} BYN (Нужно больше - обращайся к @RooK5555): "
                 )
             else:
-                await message.reply(f"Ваша сумма должна быть не менее 50 BYN: ")
+                await message.reply(f"Ваша сумма должна быть не менее {MIN_BYN} BYN: ")
         except:
             await message.reply(
                 f"Введите корректную сумму(дробные числа не принимаем!): "
