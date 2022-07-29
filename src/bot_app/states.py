@@ -1,0 +1,26 @@
+from aiogram.dispatcher.filters.state import State, StatesGroup
+
+
+class GoStates(StatesGroup):
+    address = State()
+    apply = State()
+    ban = State()
+    btc = State()
+    byn = State()
+    fees = State()
+    go = State()
+    pay = State()
+    percent = State()
+    photo = State()
+    photo_ok = State()
+    rate = State()
+    start = State()
+    setting = State()
+    turn_off = State()
+    rate = State()
+    requisiters = State()
+    usd = State()
+    usd_byn = State()
+    user_registred = State()
+    wait = State()
+    wait_approve = State()
