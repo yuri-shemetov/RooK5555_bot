@@ -21,6 +21,7 @@ from bot_app.keybords import (
     inline_apply,
     inline_cancel,
     inline_continue,
+    inline_lets_go,
     inline_new,
     inline_pay,
     inline_photo_ok,
@@ -67,7 +68,11 @@ CONTENT_TYPES = [
 # Start
 @dp.message_handler(commands=["start"], state="*")
 async def send_welcome(message: types.Message):
-    await message.reply(messages.WELCOME_MESSAGE, reply_markup=inline_continue)
+    await message.reply(messages.WELCOME_MESSAGE, reply_markup=inline_lets_go)
+    db_applications.update_application_submitted(
+        message.from_user.id,
+        application_submitted=False,
+    )
 
 
 # Terms
@@ -75,7 +80,6 @@ async def send_welcome(message: types.Message):
 async def send_terms(callback_query: types.CallbackQuery):
     await callback_query.answer()
 
-    registered_users_list = [int(x) for x in get_registered_users().split()]
     ban_users_list = [int(x) for x in get_ban_users().split()]
     on_or_off = get_on_or_off()
 
@@ -86,7 +90,7 @@ async def send_terms(callback_query: types.CallbackQuery):
         return
 
     # Admin user and button "turn_off"
-    elif callback_query.from_user.id == ADMIN and on_or_off == "on":
+    if callback_query.from_user.id == ADMIN and on_or_off == "on":
         await bot.send_message(
             callback_query.from_user.id,
             messages.WELCOME_ADMIN_TURN_ON,
@@ -103,18 +107,85 @@ async def send_terms(callback_query: types.CallbackQuery):
         )
         await GoStates.setting.set()
 
-    # Registered user
-    elif callback_query.from_user.id in registered_users_list and on_or_off == "on":
+    # Turn on
+    elif on_or_off == "on":
         await bot.send_message(
             callback_query.from_user.id, messages.TERMS_MESSAGE, reply_markup=inline_new
         )
-        await GoStates.user_registred.set()
+        await GoStates.everybody_users.set()
+
+    # Turn off
+    elif on_or_off == "off":
+        await bot.send_message(
+            callback_query.from_user.id,
+            messages.BOT_TURN_OFF,
+            reply_markup=inline_cancel,
+        )
+        await GoStates.turn_off.set()
+
+
+# Cancel
+@dp.callback_query_handler(lambda c: c.data == "cancel", state="*")
+async def button_click_call_back(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+    await bot.send_message(
+        callback_query.from_user.id,
+        messages.CANCEL_MESSAGE,
+        reply_markup=inline_replay_new,
+    )
+
+
+# New application
+@dp.callback_query_handler(lambda c: c.data == "new", state=GoStates.everybody_users)
+async def button_click_call_back(callback_query: types.CallbackQuery):
+
+    await callback_query.answer()
+    await GoStates.go.set()
+    await bot.send_message(
+        callback_query.from_user.id,
+        messages.CHOISE_RATE_MESSAGE,
+        reply_markup=inline_rate,
+    )
+
+
+# List commands for payment
+@dp.callback_query_handler(lambda c: c.data == "OK", state=GoStates.pay)
+async def button_click_call_back(callback_query: types.CallbackQuery):
+    await callback_query.answer()
+
+    ban_users_list = [int(x) for x in get_ban_users().split()]
+    registered_users_list = [int(x) for x in get_registered_users().split()]
+    on_or_off = get_on_or_off()
+
+    # Ban user
+    if callback_query.from_user.id in ban_users_list:
+        await bot.send_message(callback_query.from_user.id, messages.BLACK_LIST)
+        await GoStates.ban.set()
+        return
+
+    # Registered user
+    elif callback_query.from_user.id in registered_users_list and on_or_off == "on":
+        all_price = db.get_subscriptions_all_price(callback_query.from_user.id)
+        text = ""
+        for i in all_price:
+            for all_text in i:
+                text = text + str(all_text) + " "
+        text = "Итого к оплате: *" + text + "BYN*"
+
+        now_requisiters = get_requisiters()
+
+        await bot.send_message(
+            callback_query.from_user.id,
+            f"{text}\n\n{now_requisiters}",
+            parse_mode="Markdown",
+            reply_markup=inline_pay,
+        )
 
     # Unregistered user
     elif callback_query.from_user.id not in registered_users_list and on_or_off == "on":
         await bot.send_message(
             callback_query.from_user.id,
-            messages.TERMS_MESSAGE,
+            messages.MESSAGE_FOR_APPLY,
             reply_markup=inline_apply,
         )
         await GoStates.apply.set()
@@ -129,7 +200,7 @@ async def send_terms(callback_query: types.CallbackQuery):
         await GoStates.turn_off.set()
 
 
-# Apply
+# Apply for Authorization
 @dp.callback_query_handler(lambda c: c.data == "apply", state=GoStates.apply)
 async def button_click_call_back(callback_query: types.CallbackQuery):
     await callback_query.answer()
@@ -147,12 +218,13 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
             reply_markup=inline_answer_for_apply,
         )
         db_applications.update_application_submitted(callback_query.from_user.id)
-        await GoStates.wait_approve.set()
+        await GoStates.pay.set()
 
     elif callback_query.from_user.username and submitted:
         await bot.send_message(
             callback_query.from_user.id, messages.WAIT_REPEATED_APPROVE
         )
+        await GoStates.pay.set()
 
     else:
         await bot.send_message(
@@ -160,51 +232,7 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
             messages.USERNAME_MISSING,
             reply_markup=inline_continue,
         )
-        await GoStates.apply.set()
-
-
-# Cancel
-@dp.callback_query_handler(lambda c: c.data == "cancel", state="*")
-async def button_click_call_back(callback_query: types.CallbackQuery):
-    await callback_query.answer()
-    await bot.send_message(
-        callback_query.from_user.id,
-        messages.CANCEL_MESSAGE,
-        reply_markup=inline_replay_new,
-    )
-
-
-# New application
-@dp.callback_query_handler(lambda c: c.data == "new", state=GoStates.user_registred)
-async def button_click_call_back(callback_query: types.CallbackQuery):
-    await callback_query.answer()
-    await GoStates.go.set()
-    await bot.send_message(
-        callback_query.from_user.id,
-        messages.CHOISE_RATE_MESSAGE,
-        reply_markup=inline_rate,
-    )
-
-
-# List commands for payment
-@dp.callback_query_handler(lambda c: c.data == "OK", state=GoStates.pay)
-async def button_click_call_back(callback_query: types.CallbackQuery):
-    await callback_query.answer()
-    all_price = db.get_subscriptions_all_price(callback_query.from_user.id)
-    text = ""
-    for i in all_price:
-        for all_text in i:
-            text = text + str(all_text) + " "
-    text = "Итого к оплате: *" + text + "BYN*"
-
-    now_requisiters = get_requisiters()
-
-    await bot.send_message(
-        callback_query.from_user.id,
-        f"{text}\n\n{now_requisiters}",
-        parse_mode="Markdown",
-        reply_markup=inline_pay,
-    )
+        await GoStates.pay.set()
 
 
 # Upload photo
@@ -213,15 +241,6 @@ async def button_click_call_back(
     callback_query: types.CallbackQuery, state: FSMContext
 ):
     await callback_query.answer()
-    
-    ban_users_list = [int(x) for x in get_ban_users().split()]
-
-    # Ban user
-    if callback_query.from_user.id in ban_users_list:
-        await bot.send_message(callback_query.from_user.id, messages.BLACK_LIST)
-        await GoStates.ban.set()
-        return
-
     await state.finish()
     await GoStates.photo.set()
     await bot.send_message(callback_query.from_user.id, messages.UPLOAD_PHOTO_MESSAGE)
@@ -382,12 +401,12 @@ async def process_message(message: types.Message, state: FSMContext):
 
             await asyncio.sleep(10)
             time_wait += 1
-        
+
         if Decimal(money) != Decimal(price):
             await message.answer(
                 messages.CHECK_ERROR_MESSAGE_FROM_BANK,
                 reply_markup=inline_replay_new,
-                parse_mode="HTML"
+                parse_mode="HTML",
             )
             await state.finish()
             return
