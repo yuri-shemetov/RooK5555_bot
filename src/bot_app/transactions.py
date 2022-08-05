@@ -1,6 +1,6 @@
 import requests
 
-from bit import PrivateKeyTestnet as Key
+from bit import PrivateKey as Key
 from bot_app.my_local_settings import private_key
 
 
@@ -9,7 +9,8 @@ FEES = "https://api.blockchain.info/mempool/fees"
 
 def execute_transaction(dest_address, translation):
     source_k = Key(private_key)
-    source_k.send([(dest_address, translation, "btc")])
+    t = source_k.send([(dest_address, translation, "btc")])
+    print(t)
 
 
 def get_balance_bitcoins():

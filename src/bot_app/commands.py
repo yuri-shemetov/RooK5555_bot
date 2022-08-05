@@ -209,28 +209,19 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
         callback_query.from_user.id
     )[0][0]
 
-    if callback_query.from_user.username and submitted == False:
+    if submitted == False:
         await bot.send_message(callback_query.from_user.id, messages.WAIT_APPROVE)
         await bot.send_message(
             ADMIN,
-            f"ЗАПРОС ДОСТУПА. Добавить пользователя ID № {callback_query.from_user.id} \
-            @{callback_query.from_user.username} в группу?",
+            f"ЗАПРОС ДОСТУПА. Добавить пользователя ID № {callback_query.from_user.id} в группу?",
             reply_markup=inline_answer_for_apply,
         )
         db_applications.update_application_submitted(callback_query.from_user.id)
         await GoStates.pay.set()
 
-    elif callback_query.from_user.username and submitted:
-        await bot.send_message(
-            callback_query.from_user.id, messages.WAIT_REPEATED_APPROVE
-        )
-        await GoStates.pay.set()
-
     else:
         await bot.send_message(
-            callback_query.from_user.id,
-            messages.USERNAME_MISSING,
-            reply_markup=inline_continue,
+            callback_query.from_user.id, messages.WAIT_REPEATED_APPROVE
         )
         await GoStates.pay.set()
 
@@ -376,12 +367,18 @@ async def process_message(message: types.Message, state: FSMContext):
                         reply_markup=inline_replay_new,
                     )
 
-                # send a message about successful payment
-                await bot.send_message(
-                    ADMIN,
-                    f"✅️ Бот перевел {round(Decimal(bitcoins), 8)} BTC пользователю ID № {message.from_user.id}  @{message.from_user.username}",
-                    parse_mode="HTML",
-                )
+                try:
+                    # send a message about successful payment
+                    await bot.send_message(
+                        ADMIN,
+                        f"✅️ Бот перевел {round(Decimal(bitcoins), 8)} BTC пользователю ID № {message.from_user.id}",
+                        parse_mode="HTML",
+                    )
+                except:
+                    await message.reply(messages.ERROR_NOTIFICATION, parse_mode="HTML")
+                    await state.finish()
+                    return
+
 
                 await state.finish()
 
@@ -397,7 +394,7 @@ async def process_message(message: types.Message, state: FSMContext):
                 files = get_files_messages(path="message/")
                 remove_old_files(path="message/", files=files)
 
-                break
+                return
 
             await asyncio.sleep(10)
             time_wait += 1
