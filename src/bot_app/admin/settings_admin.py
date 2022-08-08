@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 
 from bot_app import messages
 from bot_app.app import dp, bot
+from bot_app.admin.info_currency import info_currency
 from bot_app.keybords import inline_answer_to_main, inline_setting
 from bot_app.states import GoStates
 
@@ -13,6 +14,8 @@ async def button_click_call_back(
     callback_query: types.CallbackQuery, state: FSMContext
 ):
     await bot.answer_callback_query(callback_query.id)
+    
+    currency = info_currency()
 
     with open("bot_app/admin/settings/currency_rate.txt", "r") as file_rate:
         now_rate = file_rate.read()
@@ -34,7 +37,8 @@ async def button_click_call_back(
 
     await bot.send_message(
         callback_query.from_user.id,
-        f"Мин. курс: {now_rate} BYN;\nКомиссия: {now_fees} BYN;\nПроцент: {now_percent} %;\n1USD: {now_byn} BYN;\nМин. сумма сделки: {min_amount} BYN;\nМaкс. сумма сделки: {max_amount} BYN."
+        f"Мин. курс: {now_rate} BYN;\nКомиссия: {now_fees} BYN;\nПроцент: {now_percent} %;\n1USD: {now_byn} BYN;\
+            \nМин. сумма сделки: {min_amount} BYN;\nМaкс. сумма сделки: {max_amount} BYN;\nКурс продажи: {currency} BYN"
         + messages.SETTING,
         reply_markup=inline_setting,
     )

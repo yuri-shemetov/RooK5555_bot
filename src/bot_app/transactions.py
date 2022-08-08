@@ -9,8 +9,7 @@ FEES = "https://api.blockchain.info/mempool/fees"
 
 def execute_transaction(dest_address, translation):
     source_k = Key(private_key)
-    t = source_k.send([(dest_address, translation, "btc")])
-    print(t)
+    source_k.send([(dest_address, translation, "btc")])
 
 
 def get_balance_bitcoins():
