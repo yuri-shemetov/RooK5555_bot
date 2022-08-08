@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 
 from bot_app import messages
 from bot_app.app import dp, bot
-from bot_app.keybords import inline_answer_for_requisiters
+from bot_app.keybords import inline_answer_for_requisiters, inline_answer_to_main
 from bot_app.states import GoStates
 
 
@@ -98,7 +98,7 @@ async def process_message(message: types.Message, state: FSMContext):
         message.from_user.id,
         messages.REQUISITERS_SUCCESSFULLY,
         parse_mode="HTML",
-        reply_markup=inline_answer_for_requisiters,
+        reply_markup=inline_answer_to_main,
     )
 
     await state.finish()

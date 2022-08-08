@@ -52,8 +52,8 @@ def get_new_email(price, servername="imap.yandex.ru"):
             )
 
             if (
-                subject == "4.6812/Перевод (Поступление)"
-            ):  # <--- replace the text, A-bank
+                subject == "SMS-Extra: [Paritetbank] -> [375292929301]"
+            ):  # <--- replace the text, SMS from Paritetbank
                 # Body details
                 for part in email_message.walk():
                     if (
@@ -88,10 +88,9 @@ def get_new_email(price, servername="imap.yandex.ru"):
                                 for word in words:
                                     i += 1
                                     if (
-                                        word == "Успешно"
-                                    ):  # <--- replace the text, A-bank
+                                        word == "POPOLNENIE"
+                                    ):  # <--- replace the text, Paritetbank
                                         money = words[i]
-                                        money = money[6:]
                                 return money
                         except:
                             return money
