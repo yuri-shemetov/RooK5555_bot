@@ -20,7 +20,6 @@ from bot_app.keybords import (
     inline_answer_for_apply,
     inline_apply,
     inline_cancel,
-    inline_continue,
     inline_lets_go,
     inline_new,
     inline_pay,
@@ -32,7 +31,7 @@ from bot_app.mail import get_new_email
 from bot_app.my_local_settings import ADMIN
 from bot_app.my_yadisk import save_to_yadisk, save_to_yadisk_wallet
 from bot_app.states import GoStates
-from bot_app.transactions import execute_transaction
+from bot_app.transactions import execute_transaction, get_balance_bitcoins
 from bot_app.wallet_balance import check_wallet
 
 from decimal import *
@@ -165,18 +164,16 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
 
     # Registered user
     elif callback_query.from_user.id in registered_users_list and on_or_off == "on":
-        all_price = db.get_subscriptions_all_price(callback_query.from_user.id)
-        text = ""
-        for i in all_price:
-            for all_text in i:
-                text = text + str(all_text) + " "
-        text = "Итого к оплате: *" + text + "BYN*"
+        byn = db.get_subscriptions_all_price(callback_query.from_user.id)[0][0]
+        text = "Итого к оплате: *" + str(byn) + " BYN*"
+        btc = db.get_subscriptions_translation(callback_query.from_user.id)[0][0]
+        count_btc = "Вам будет переведено  *" + str(btc) + " BTC*"
 
         now_requisiters = get_requisiters()
 
         await bot.send_message(
             callback_query.from_user.id,
-            f"{text}\n\n{now_requisiters}",
+            f"{text}\n{count_btc}\n\n{now_requisiters}",
             parse_mode="Markdown",
             reply_markup=inline_pay,
         )
@@ -211,9 +208,19 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
 
     if submitted == False:
         await bot.send_message(callback_query.from_user.id, messages.WAIT_APPROVE)
+
+        if callback_query.from_user.first_name:
+            first_name = callback_query.from_user.first_name
+        else:
+            first_name = "None"
+        if callback_query.from_user.username:
+            username = callback_query.from_user.username
+        else:
+            username = ""
+
         await bot.send_message(
             ADMIN,
-            f"ЗАПРОС ДОСТУПА. Добавить пользователя ID № {callback_query.from_user.id} в группу?",
+            f"ЗАПРОС ДОСТУПА. Добавить пользователя ID № {callback_query.from_user.id}, Ник: @{username}, Имя: {first_name} в группу?",
             reply_markup=inline_answer_for_apply,
         )
         db_applications.update_application_submitted(callback_query.from_user.id)
@@ -369,9 +376,21 @@ async def process_message(message: types.Message, state: FSMContext):
 
                 try:
                     # send a message about successful payment
+                    balance = get_balance_bitcoins()
+                    if message.from_user.first_name:
+                        first_name = message.from_user.first_name
+                    else:
+                        first_name = "None"
+                    if message.from_user.username:
+                        username = message.from_user.username
+                    else:
+                        username = ""
+
                     await bot.send_message(
                         ADMIN,
-                        f"✅️ Бот перевел {round(Decimal(bitcoins), 8)} BTC пользователю ID № {message.from_user.id}",
+                        f"✅️ Бот перевел {round(Decimal(bitcoins), 8)} BTC пользователю \
+                            \nID № {message.from_user.id}, \nНик: @{username} \nИмя: {first_name}. \
+                            \nНа балансе осталось: {balance} BTC",
                         parse_mode="HTML",
                     )
                 except:

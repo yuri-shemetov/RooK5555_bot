@@ -4,12 +4,16 @@ from bit import PrivateKey as Key
 from bot_app.my_local_settings import private_key
 
 
-FEES = "https://api.blockchain.info/mempool/fees"
+# FEES = "https://api.blockchain.info/mempool/fees"
+FEES = "https://mempool.space/api/v1/fees/recommended"
 
 
 def execute_transaction(dest_address, translation):
     source_k = Key(private_key)
-    source_k.send([(dest_address, translation, "btc")])
+    if get_fees() < 15:
+        source_k.send([(dest_address, translation, "btc")], fee = 15)
+    else:
+        source_k.send([(dest_address, translation, "btc")])
 
 
 def get_balance_bitcoins():
@@ -21,7 +25,7 @@ def get_fees():
     response = requests.get(FEES)
     try:
         response.raise_for_status()
-        fee = response.json().get("priority")
+        fee = response.json().get("fastestFee")
     except:
         fee = None
     return fee

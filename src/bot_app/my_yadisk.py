@@ -1,6 +1,7 @@
 import csv
 import yadisk
 
+from bot_app.app import db
 from bot_app.my_local_settings import yadisk_id, ya_secret, yadisk_token
 from datetime import datetime
 from os import mkdir, path
@@ -11,6 +12,7 @@ def save_to_yadisk(id_user, path_jpg):
     date = datetime.strftime(datetime.now(), "%y_%m_%d__%H-%M-%S")
     mounth = datetime.strftime(datetime.now(), "%y_%m")
     order = datetime.strftime(datetime.now(), "%d/%m/%y-%H:%M:%S")
+    byn = db.get_subscriptions_all_price(id_user)[0][0]
 
     if not y.exists(f"/{mounth}"):
         y.mkdir(f"/{mounth}")
@@ -32,6 +34,8 @@ def save_to_yadisk(id_user, path_jpg):
             f"{order} ",
             f"id: ",
             f"{id_user} ",
+            f"BYN: ",
+            f"{byn} ",
             f"path_to_photo: ",
             f"{date}_id{id_user}.jpg",
         ]
