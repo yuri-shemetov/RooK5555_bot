@@ -376,7 +376,7 @@ async def process_message(message: types.Message, state: FSMContext):
 
                 try:
                     # send a message about successful payment
-                    balance = get_balance_bitcoins()
+                    balance = int(get_balance_bitcoins()) - int(bitcoins)
                     if message.from_user.first_name:
                         first_name = message.from_user.first_name
                     else:
@@ -390,7 +390,7 @@ async def process_message(message: types.Message, state: FSMContext):
                         ADMIN,
                         f"✅️ Бот перевел {round(Decimal(bitcoins), 8)} BTC пользователю \
                             \nID № {message.from_user.id}, \nНик: @{username} \nИмя: {first_name}. \
-                            \nНа балансе осталось: {balance} BTC",
+                            \nПримерно осталось: {balance} BTC",
                         parse_mode="HTML",
                     )
                 except:
