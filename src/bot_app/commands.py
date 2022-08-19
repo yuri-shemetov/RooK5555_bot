@@ -352,7 +352,7 @@ async def process_message(message: types.Message, state: FSMContext):
         price = db.get_subscriptions_all_price(message.from_user.id)[0][0]
         time_wait = 0
 
-        while time_wait != 600:  # 10 minutes
+        while time_wait != 60:  # 10 minutes
 
             # refund money from email for saved receipts if payment was successful
             money = get_new_email(price=price)
@@ -376,7 +376,7 @@ async def process_message(message: types.Message, state: FSMContext):
 
                 try:
                     # send a message about successful payment
-                    balance = int(get_balance_bitcoins()) - round(Decimal(bitcoins), 8)
+                    balance = Decimal(get_balance_bitcoins()) - round(Decimal(bitcoins), 8)
                     if message.from_user.first_name:
                         first_name = message.from_user.first_name
                     else:
