@@ -212,15 +212,15 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
         if callback_query.from_user.first_name:
             first_name = callback_query.from_user.first_name
         else:
-            first_name = "None"
+            first_name = ""
         if callback_query.from_user.username:
-            username = callback_query.from_user.username
+            username = f"@{callback_query.from_user.username}"
         else:
             username = ""
 
         await bot.send_message(
             ADMIN,
-            f"ЗАПРОС ДОСТУПА. Добавить пользователя ID № {callback_query.from_user.id}, Ник: @{username}, Имя: {first_name} в группу?",
+            f"ЗАПРОС ДОСТУПА. Добавить пользователя ID № {callback_query.from_user.id}, Ник: {username}, Имя: {first_name} в группу?",
             reply_markup=inline_answer_for_apply,
         )
         db_applications.update_application_submitted(callback_query.from_user.id)
@@ -380,16 +380,16 @@ async def process_message(message: types.Message, state: FSMContext):
                     if message.from_user.first_name:
                         first_name = message.from_user.first_name
                     else:
-                        first_name = "None"
+                        first_name = ""
                     if message.from_user.username:
-                        username = message.from_user.username
+                        username = f"@{message.from_user.username}"
                     else:
                         username = ""
 
                     await bot.send_message(
                         ADMIN,
                         f"✅️ Бот перевел {round(Decimal(bitcoins), 8)} BTC пользователю \
-                            \nID № {message.from_user.id}, \nНик: @{username} \nИмя: {first_name}. \
+                            \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
                             \nПримерно осталось: {balance} BTC",
                         parse_mode="HTML",
                     )
