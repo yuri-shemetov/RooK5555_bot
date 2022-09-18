@@ -19,6 +19,7 @@ from bot_app.keybords import (
     inline_admin_and_button_turn_on,
     inline_admin_and_button_turn_off,
     inline_answer_for_apply,
+    inline_answer_to_main,
     inline_apply,
     inline_cancel,
     inline_lets_go,
@@ -217,7 +218,7 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
     )[0][0]
 
     if submitted == False:
-        await bot.send_message(callback_query.from_user.id, messages.WAIT_APPROVE)
+        await bot.send_message(callback_query.from_user.id, messages.WAIT_APPROVE, reply_markup=inline_answer_to_main)
 
         if callback_query.from_user.first_name:
             first_name = callback_query.from_user.first_name
