@@ -14,6 +14,7 @@ class GoStates(StatesGroup):
     go = State()
     max_amount = State()
     min_amount = State()
+    notification = State()
     pay = State()
     percent = State()
     photo = State()

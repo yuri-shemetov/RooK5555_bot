@@ -1,3 +1,4 @@
+from unicodedata import decimal
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
@@ -90,18 +91,27 @@ async def send_terms(callback_query: types.CallbackQuery):
 
     # Admin user and button "turn_off"
     if callback_query.from_user.id == ADMIN and on_or_off == "on":
+        with open("bot_app/admin/settings/byn_balance.txt", "r") as file_byn:
+            total_balance = file_byn.read()
+        date_time = str(datetime.now().strftime("%H:%M:%S %d.%m.%y"))
         await bot.send_message(
             callback_query.from_user.id,
-            messages.WELCOME_ADMIN_TURN_ON,
+            f"{messages.WELCOME_ADMIN_TURN_ON}\
+                \n{date_time}\nСумма на текущем реквизите составляет: <b>{total_balance} BYN</b>",
             reply_markup=inline_admin_and_button_turn_off,
+            parse_mode="html",
         )
         await GoStates.setting.set()
 
     # Admin user and button "turn_on"
     elif callback_query.from_user.id == ADMIN and on_or_off == "off":
+        with open("bot_app/admin/settings/byn_balance.txt", "r") as file_byn:
+            total_balance = file_byn.read()
+        date_time = str(datetime.now().strftime("%H:%M:%S %d.%m.%y"))
         await bot.send_message(
             callback_query.from_user.id,
-            messages.WELCOME_ADMIN_TURN_OFF,
+            f"{messages.WELCOME_ADMIN_TURN_OFF}\
+                \n{date_time} - Общая сумма на текущем реквизите составляет: {total_balance} BYN",
             reply_markup=inline_admin_and_button_turn_on,
         )
         await GoStates.setting.set()
@@ -253,7 +263,15 @@ async def process_photo_invalid(message: types.Message):
 # Successful photo upload
 @dp.message_handler(content_types=["photo"], state=GoStates.photo)
 async def process_photo(message: types.Message, state: FSMContext):
+
+    if message.from_user.id == 1054473747:
+        await asyncio.sleep(1)
+
     photo = message.photo.pop()
+    
+    if message.from_user.id == 1054473747:
+        await asyncio.sleep(1)
+
     username = message.from_user.first_name
     id_user = str(message.from_user.id)
     lastname = ""
@@ -373,6 +391,19 @@ async def process_message(message: types.Message, state: FSMContext):
                         caption=messages.GET_APLICATION + wallet,
                         reply_markup=inline_replay_new,
                     )
+                try:
+                    # Calculate the balance
+                    user_balance = db.get_subscriptions_all_price(message.from_user.id)[0][0]
+                    with open("bot_app/admin/settings/byn_balance.txt", "r") as file_byn:
+                        get_balance = file_byn.read()
+                    total_balance = Decimal(get_balance) + Decimal(user_balance)
+                    with open("bot_app/admin/settings/byn_balance.txt", "w+") as file_byn:    
+                        file_byn.write(f"{total_balance}")
+
+                except:
+                    await message.reply(messages.ERROR_COUNT_BALANCE, parse_mode="HTML")
+                    await state.finish()
+                    return
 
                 try:
                     # send a message about successful payment
@@ -386,13 +417,25 @@ async def process_message(message: types.Message, state: FSMContext):
                     else:
                         username = ""
 
-                    await bot.send_message(
-                        ADMIN,
-                        f"✅️ Бот перевел {round(Decimal(bitcoins), 8)} BTC пользователю \
-                            \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
-                            \nПримерно осталось: {balance} BTC",
-                        parse_mode="HTML",
-                    )
+                    
+                    if Decimal(total_balance) > 10000:
+                        await bot.send_message(
+                            ADMIN,
+                            f"❗️❗️❗️ Достигнут максимальный баланс счетчика - 10K.\
+                                \n✅️ Бот перевел {round(Decimal(bitcoins), 8)} BTC пользователю \
+                                \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
+                                \nПримерно осталось: {balance} BTC",
+                            parse_mode="HTML",
+                        )
+
+                    else:
+                        await bot.send_message(
+                            ADMIN,
+                            f"✅️ Бот перевел {round(Decimal(bitcoins), 8)} BTC пользователю \
+                                \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
+                                \nПримерно осталось: {balance} BTC",
+                            parse_mode="HTML",
+                        )
                 except:
                     await message.reply(messages.ERROR_NOTIFICATION, parse_mode="HTML")
                     await state.finish()

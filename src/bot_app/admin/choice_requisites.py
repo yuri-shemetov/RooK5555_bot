@@ -93,6 +93,9 @@ async def process_message(message: types.Message, state: FSMContext):
     ) as file_users:
         now_requisiters = file_users.read()
 
+    with open("bot_app/admin/settings/byn_balance.txt", "w+") as file_byn:    
+        file_byn.write(f"0")
+
     await bot.send_message(message.from_user.id, f"{now_requisiters}")
     await bot.send_message(
         message.from_user.id,

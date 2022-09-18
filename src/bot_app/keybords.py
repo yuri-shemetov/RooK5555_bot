@@ -3,6 +3,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 inline_button_answer_for_apply_yes = InlineKeyboardButton("Да", callback_data="answer_yes")
 inline_button_answer_for_apply_no = InlineKeyboardButton("Нет", callback_data="answer_no")
+inline_button_answer_for_notification_yes = InlineKeyboardButton("Написать", callback_data="notification_yes")
 inline_button_answer_for_requisiters_yes = InlineKeyboardButton("Изменить", callback_data="requisiters_yes")
 inline_button_answer_to_main = InlineKeyboardButton("На главную", callback_data="replay_new")
 inline_button_applications = InlineKeyboardButton("Списки", callback_data="applications")
@@ -19,6 +20,7 @@ inline_button_lets_go = InlineKeyboardButton("Вперед!", callback_data="rep
 inline_button_min_amount = InlineKeyboardButton("Мин. сумма сделки", callback_data="min_amount")
 inline_button_max_amount = InlineKeyboardButton("Макс. сумма сделки", callback_data="max_amount")
 inline_button_new = InlineKeyboardButton("Согласен / создать новую заявку", callback_data="new")
+inline_button_notification = InlineKeyboardButton("Отправка сообщения всем участникам", callback_data="notification")
 inline_button_paid = InlineKeyboardButton("Оплачено", callback_data="paid")
 inline_button_percent = InlineKeyboardButton("Процент", callback_data="percent")
 inline_button_photo_ok = InlineKeyboardButton("OK", callback_data="photo_ok")
@@ -39,6 +41,7 @@ inline_admin_and_button_turn_on = InlineKeyboardMarkup(row_width=2)
 inline_admin_and_button_turn_off = InlineKeyboardMarkup(row_width=2)
 inline_answer = InlineKeyboardMarkup()
 inline_answer_for_apply = InlineKeyboardMarkup()
+inline_answer_for_notification = InlineKeyboardMarkup()
 inline_answer_for_requisiters = InlineKeyboardMarkup()
 inline_answer_to_main = InlineKeyboardMarkup()
 inline_apply = InlineKeyboardMarkup(row_width=1)
@@ -63,9 +66,12 @@ inline_usd_byn = InlineKeyboardMarkup()
 inline_admin_and_button_turn_on.add(
     inline_button_setting,
     inline_button_requisites,
+    inline_button_balance_btc,
+    inline_button_black_list,
     inline_button_turn_on,
     inline_button_stop_bot_server,
-    inline_button_balance_btc,
+    inline_button_notification,
+    
 )
 inline_admin_and_button_turn_off.add(
     inline_button_setting,
@@ -74,9 +80,11 @@ inline_admin_and_button_turn_off.add(
     inline_button_black_list,
     inline_button_turn_off,
     inline_button_stop_bot_server,
+    inline_button_notification,
 )
 inline_answer.row(inline_button_yes, inline_button_cancel,)
 inline_answer_for_apply.row(inline_button_answer_for_apply_yes, inline_button_answer_for_apply_no,)
+inline_answer_for_notification.row(inline_button_answer_for_notification_yes, inline_button_answer_to_main,)
 inline_answer_for_requisiters.row(inline_button_answer_for_requisiters_yes, inline_button_answer_to_main,)
 inline_answer_to_main.row(inline_button_answer_to_main,)
 inline_apply.add(inline_button_apply, inline_button_cancel,)
