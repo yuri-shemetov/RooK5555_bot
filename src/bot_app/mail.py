@@ -20,7 +20,7 @@ def get_new_email(price, servername="imap.yandex.ru"):
     (status, data) = mail.search(None, f"{BODY}")
     if data == [b""] and len(str(price)) == 4:
         request_price_plus_space = str(price)[1:]
-        BODY = f'UNSEEN TEXT "{request_price_plus_space}"'
+        BODY = f'UNSEEN BODY "{request_price_plus_space}"'
         (status, data) = mail.search(None, f"{BODY}")
     date_message = datetime.strftime(datetime.now(), "%y_%m_%d-%H-%M-%S")
     money = 0
