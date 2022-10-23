@@ -13,6 +13,7 @@ inline_button_black_list = InlineKeyboardButton("Черный список", cal
 inline_button_btc = InlineKeyboardButton("BTC", callback_data="btc")
 inline_button_byn = InlineKeyboardButton("BYN", callback_data="byn")
 inline_button_cancel = InlineKeyboardButton("Отменить", callback_data="cancel")
+inline_button_сheck_users = InlineKeyboardButton("Проверка Users", callback_data="check_users")
 inline_button_continue = InlineKeyboardButton("Продолжить", callback_data="OK")
 inline_button_currency_rate = InlineKeyboardButton("Мин. курс", callback_data="rate")
 inline_button_fees = InlineKeyboardButton("Комиссия", callback_data="fees")
@@ -20,7 +21,7 @@ inline_button_lets_go = InlineKeyboardButton("Вперед!", callback_data="rep
 inline_button_min_amount = InlineKeyboardButton("Мин. сумма сделки", callback_data="min_amount")
 inline_button_max_amount = InlineKeyboardButton("Макс. сумма сделки", callback_data="max_amount")
 inline_button_new = InlineKeyboardButton("Согласен / создать новую заявку", callback_data="new")
-inline_button_notification = InlineKeyboardButton("Отправка сообщения всем участникам", callback_data="notification")
+inline_button_notification = InlineKeyboardButton("Рассылка сообщений", callback_data="notification")
 inline_button_paid = InlineKeyboardButton("Оплачено", callback_data="paid")
 inline_button_percent = InlineKeyboardButton("Процент", callback_data="percent")
 inline_button_photo_ok = InlineKeyboardButton("OK", callback_data="photo_ok")
@@ -80,6 +81,7 @@ inline_admin_and_button_turn_off.add(
     inline_button_black_list,
     inline_button_turn_off,
     inline_button_stop_bot_server,
+    inline_button_сheck_users,
     inline_button_notification,
 )
 inline_answer.row(inline_button_yes, inline_button_cancel,)

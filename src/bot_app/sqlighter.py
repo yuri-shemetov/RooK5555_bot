@@ -81,6 +81,14 @@ class SQLighter:
                 (user_id,),
             ).fetchall()
 
+    def get_subscriptions_created(self, user_id):
+        """Get creation date"""
+        with self.connection:
+            return self.cursor.execute(
+                "SELECT `created` FROM `subscriptions` WHERE `user_id` = ?",
+                (user_id,),
+            ).fetchall()
+
     def get_photo_price_translation(self, user_id):
         """Get photo, price, translation"""
         with self.connection:

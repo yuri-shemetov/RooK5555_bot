@@ -1,9 +1,9 @@
-from unicodedata import decimal
+import asyncio
+import json
+import requests
+
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-
-import asyncio
-
 from bot_app import messages
 from bot_app.admin.choice_requisites import get_requisiters
 from bot_app.admin.users_list import get_ban_users, get_registered_users
@@ -442,9 +442,6 @@ async def process_message(message: types.Message, state: FSMContext):
                     await state.finish()
                     return
 
-
-                await state.finish()
-
                 # delete old media files
                 files = get_files_photos(path="media/")
                 remove_old_files(path="media/", files=files)
@@ -456,6 +453,39 @@ async def process_message(message: types.Message, state: FSMContext):
                 # delete old messages (receipts) files
                 files = get_files_messages(path="message/")
                 remove_old_files(path="message/", files=files)
+
+                await state.finish()
+                
+                # Approved from blockchain
+                try:
+                    await asyncio.sleep(30)
+                    time_approved = 0
+                    block_index = None
+                    while block_index == None or time_approved < 3600:
+                        transactions_url = 'https://blockchain.info/rawaddr/' + user_message
+                        response = requests.get(transactions_url)
+                        block_index = json.loads(response.text)['txs'][0]['block_index']
+                        if block_index != None:
+                            await message.reply(
+                                messages.AUTOMATIC_CHECK_TRANSACTION,
+                                parse_mode="HTML"
+                            )
+                            return
+
+                        await asyncio.sleep(60)
+                        time_approved += 60
+                                
+                    await message.reply(
+                        messages.AUTOMATIC_CHECK_TRANSACTION_1_HOUR,
+                        parse_mode="HTML"
+                    )
+
+                except:
+                    await message.reply(
+                        messages.MANUAL_CHECK_TRANSACTION,
+                        parse_mode="HTML"
+                    )
+                    return
 
                 return
 
