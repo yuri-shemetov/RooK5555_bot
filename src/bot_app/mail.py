@@ -380,7 +380,7 @@ def get_new_email(price, servername="imap.yandex.ru"):
                                 for word in words:
                                     i += 1
                                     if (
-                                        word == "Popolnenie" and word[i] == "Uspeshno"
+                                        word == "Popolnenie" and words[i] == "Uspeshno"
                                     ):  # <--- replace the text, BSB-Bank
                                         money = words[i+4]
                                         return money
