@@ -9,6 +9,7 @@ class GoStates(StatesGroup):
     ban = State()
     btc = State()
     byn = State()
+    delete_user = State()
     everybody_users = State()
     fees = State()
     go = State()

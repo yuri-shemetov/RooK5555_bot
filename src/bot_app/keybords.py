@@ -16,6 +16,7 @@ inline_button_cancel = InlineKeyboardButton("Отменить", callback_data="c
 inline_button_сheck_users = InlineKeyboardButton("Проверка Users", callback_data="check_users")
 inline_button_continue = InlineKeyboardButton("Продолжить", callback_data="OK")
 inline_button_currency_rate = InlineKeyboardButton("Мин. курс", callback_data="rate")
+inline_button_delete_user = InlineKeyboardButton("Удалить User", callback_data="delete_user")
 inline_button_fees = InlineKeyboardButton("Комиссия", callback_data="fees")
 inline_button_lets_go = InlineKeyboardButton("Вперед!", callback_data="replay_new")
 inline_button_min_amount = InlineKeyboardButton("Мин. сумма сделки", callback_data="min_amount")
@@ -60,6 +61,7 @@ inline_stop = InlineKeyboardMarkup()
 inline_rate = InlineKeyboardMarkup()
 inline_replay_new = InlineKeyboardMarkup()
 inline_usd_byn = InlineKeyboardMarkup()
+inline_users = InlineKeyboardMarkup(row_width=2)
 
 
 # Out
@@ -78,10 +80,9 @@ inline_admin_and_button_turn_off.add(
     inline_button_setting,
     inline_button_requisites,
     inline_button_balance_btc,
-    inline_button_black_list,
+    inline_button_сheck_users,
     inline_button_turn_off,
     inline_button_stop_bot_server,
-    inline_button_сheck_users,
     inline_button_notification,
 )
 inline_answer.row(inline_button_yes, inline_button_cancel,)
@@ -108,3 +109,7 @@ inline_setting.add(
     inline_button_answer_to_main,
 )
 inline_stop.row(inline_button_answer_to_main, inline_button_stop,)
+inline_users.add(
+    inline_button_delete_user,
+    inline_button_answer_to_main,
+)
