@@ -5,7 +5,7 @@ import requests
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from bot_app import messages
-from bot_app.admin.choice_requisites import get_requisiters
+from bot_app.admin.choice_requisites import get_requisiters, get_name_bank
 from bot_app.admin.users_list import get_ban_users, get_registered_users
 from bot_app.admin.on_off import get_on_or_off
 from bot_app.app import dp, bot, db, db_applications
@@ -31,7 +31,11 @@ from bot_app.keybords import (
 )
 from bot_app.mail import get_new_email
 from bot_app.my_local_settings import ADMIN
-from bot_app.my_yadisk import save_to_yadisk, save_to_yadisk_wallet
+from bot_app.my_yadisk import (
+    save_to_yadisk,
+    save_to_yadisk_wallet,
+    save_to_yadisk_general_report
+)
 from bot_app.states import GoStates
 from bot_app.transactions import execute_transaction, get_balance_bitcoins
 from bot_app.wallet_balance import check_wallet
@@ -355,7 +359,7 @@ async def process_message(message: types.Message, state: FSMContext):
             id_user=id_user,
             user_message=user_message,
         )
-
+        # Check timestamp
         await bot.send_message(
             message.from_user.id, messages.STATUS_WAIT_MESSAGE, parse_mode="HTML"
         )
@@ -441,6 +445,22 @@ async def process_message(message: types.Message, state: FSMContext):
                     await message.reply(messages.ERROR_NOTIFICATION, parse_mode="HTML")
                     await state.finish()
                     return
+
+                try:
+                    # save a general report
+                    id_user = message.from_user.id
+                    await asyncio.sleep(10)
+                    transactions_url = 'https://blockchain.info/rawaddr/' + user_message
+                    response = requests.get(transactions_url)
+                    hash_address = json.loads(response.text)['txs'][0]['hash']
+                    name_bank = get_name_bank()
+                    save_to_yadisk_general_report(hash_address, id_user, username, first_name, name_bank)
+                except:
+                    await bot.send_message(
+                        ADMIN,
+                        f"⚠️ Сохранить новый отчет не удалось",
+                        parse_mode="HTML",
+                    )
 
                 # delete old media files
                 files = get_files_photos(path="media/")

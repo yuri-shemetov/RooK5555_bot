@@ -3,8 +3,9 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 inline_button_answer_for_apply_yes = InlineKeyboardButton("Да", callback_data="answer_yes")
 inline_button_answer_for_apply_no = InlineKeyboardButton("Нет", callback_data="answer_no")
+inline_button_answer_for_bank_yes = InlineKeyboardButton("Изменить БАНК", callback_data="bank_yes")
 inline_button_answer_for_notification_yes = InlineKeyboardButton("Написать", callback_data="notification_yes")
-inline_button_answer_for_requisiters_yes = InlineKeyboardButton("Изменить", callback_data="requisiters_yes")
+inline_button_answer_for_requisiters_yes = InlineKeyboardButton("Изменить реквизиты", callback_data="requisiters_yes")
 inline_button_answer_to_main = InlineKeyboardButton("На главную", callback_data="replay_new")
 inline_button_applications = InlineKeyboardButton("Списки", callback_data="applications")
 inline_button_apply = InlineKeyboardButton("Запросить доступ", callback_data="apply")
@@ -27,7 +28,7 @@ inline_button_paid = InlineKeyboardButton("Оплачено", callback_data="pai
 inline_button_percent = InlineKeyboardButton("Процент", callback_data="percent")
 inline_button_photo_ok = InlineKeyboardButton("OK", callback_data="photo_ok")
 inline_button_replay_new = InlineKeyboardButton("Начать сначала", callback_data="replay_new")
-inline_button_requisites = InlineKeyboardButton("Реквизиты", callback_data="applications")
+inline_button_requisites = InlineKeyboardButton("Реквизиты/Банк", callback_data="applications")
 inline_button_setting = InlineKeyboardButton("Настройки", callback_data="setting")
 inline_button_stop = InlineKeyboardButton("⛔️ STOP ⛔️", callback_data="stop")
 inline_button_stop_bot_server = InlineKeyboardButton("⛔️ STOP BOT SERVER", callback_data="stop_bot_server")
@@ -44,7 +45,7 @@ inline_admin_and_button_turn_off = InlineKeyboardMarkup(row_width=2)
 inline_answer = InlineKeyboardMarkup()
 inline_answer_for_apply = InlineKeyboardMarkup()
 inline_answer_for_notification = InlineKeyboardMarkup()
-inline_answer_for_requisiters = InlineKeyboardMarkup()
+inline_answer_for_requisiters = InlineKeyboardMarkup(row_width=2)
 inline_answer_to_main = InlineKeyboardMarkup()
 inline_apply = InlineKeyboardMarkup(row_width=1)
 inline_cancel = InlineKeyboardMarkup()
@@ -88,7 +89,11 @@ inline_admin_and_button_turn_off.add(
 inline_answer.row(inline_button_yes, inline_button_cancel,)
 inline_answer_for_apply.row(inline_button_answer_for_apply_yes, inline_button_answer_for_apply_no,)
 inline_answer_for_notification.row(inline_button_answer_for_notification_yes, inline_button_answer_to_main,)
-inline_answer_for_requisiters.row(inline_button_answer_for_requisiters_yes, inline_button_answer_to_main,)
+inline_answer_for_requisiters.add(
+    inline_button_answer_for_requisiters_yes,
+    inline_button_answer_for_bank_yes,
+    inline_button_answer_to_main,
+)
 inline_answer_to_main.row(inline_button_answer_to_main,)
 inline_apply.add(inline_button_apply, inline_button_cancel,)
 inline_cancel.row(inline_button_cancel,)

@@ -7,6 +7,7 @@ class GoStates(StatesGroup):
     address = State()
     apply = State()
     ban = State()
+    bank_name = State()
     btc = State()
     byn = State()
     delete_user = State()

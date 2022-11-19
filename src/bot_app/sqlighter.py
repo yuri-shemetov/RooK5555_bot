@@ -89,11 +89,11 @@ class SQLighter:
                 (user_id,),
             ).fetchall()
 
-    def get_photo_price_translation(self, user_id):
-        """Get photo, price, translation"""
+    def get_subscriptions_photo_price(self, user_id):
+        """Get photo, price"""
         with self.connection:
             return self.cursor.execute(
-                "SELECT `photo`, `price`, `translation` FROM `subscriptions` WHERE `user_id` = ?",
+                "SELECT `photo`, `price` FROM `subscriptions` WHERE `user_id` = ?",
                 (user_id,),
             ).fetchall()
 

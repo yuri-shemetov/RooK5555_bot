@@ -80,3 +80,46 @@ def save_to_yadisk_wallet(username, lastname, id_user, user_message):
             message,
             f"/{mounth}/00_WALLET/{date}_id{id_user}_[{username}_{lastname}].txt",
         )
+
+
+def save_to_yadisk_general_report(hash_address, id_user, username, firstname, name_bank):
+    y = yadisk.YaDisk(yadisk_id, ya_secret, yadisk_token)
+    mounth = datetime.strftime(datetime.now(), "%y_%m")
+    (path_to_photo, byn) = db.get_subscriptions_photo_price(id_user)[0]
+    path_to_photo = f"{path_to_photo[6:24]}-id{id_user}.jpg"
+
+    if not y.exists(f"/{mounth}"):
+        y.mkdir(f"/{mounth}")
+    if not path.exists(f"{mounth}/"):
+        mkdir(f"{mounth}/")
+
+    myData = [
+        [   
+            f"{path_to_photo}",
+            f"hash: ",
+            f"{hash_address}",
+            f"id: ",
+            f"{id_user} ",
+            f"nick: ",
+            f"{username} ",
+            f"name: ",
+            f"{firstname} ",
+            f"bank: ",
+            f"{name_bank} ",
+            f"BYN: ",
+            f"{byn} ",
+        ]
+    ]
+
+    path_csv = f"{mounth}/Detailed_DATA.csv"
+
+    with open(path_csv, "a+") as file_csv:
+        writer = csv.writer(file_csv)
+        writer.writerows(myData)
+
+    with open(path_csv, "rb+") as file_csv:
+        try:
+            y.remove(f"/{mounth}/01_Detailed_Data_{mounth}.csv", permanently=True)
+        except:
+            pass
+        y.upload(file_csv, f"/{mounth}/01_Detailed_Data_{mounth}.csv")
