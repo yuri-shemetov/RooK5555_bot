@@ -13,6 +13,7 @@ from bot_app.transactions import get_balance_bitcoins
 
 from datetime import datetime
 from decimal import *
+from time import time
 
 
 @dp.callback_query_handler(lambda c: c.data == "byn", state=GoStates.go)
@@ -55,14 +56,9 @@ async def process_message(message: types.Message, state: FSMContext):
 
                 if Decimal(balance) >= Decimal(money + ONE_BIT):
 
-                    answer_for_user = (
-                        f"Вам будет отправлено "
-                        + str(money)
-                        + f" BTC. Отправка транзакции осуществляется с ПРИОРИТЕТОМ. Продолжить?"
-                    )
                     await bot.send_message(
                         message.from_user.id,
-                        answer_for_user,
+                        messages.COST_BYN.format(money),
                         reply_markup=inline_answer,
                         parse_mode="HTML",
                     )
@@ -77,6 +73,7 @@ async def process_message(message: types.Message, state: FSMContext):
                             price=user_message,
                             translation=str(money),
                             created=str(datetime.now().strftime("%d/%m/%y-%H:%M:%S")),
+                            start_timestamp = int(time()),
                         )
                     else:
                         # if user has to DB that update his
@@ -86,6 +83,7 @@ async def process_message(message: types.Message, state: FSMContext):
                             price=user_message,
                             translation=str(money),
                             created=str(datetime.now().strftime("%d/%m/%y-%H:%M:%S")),
+                            start_timestamp = int(time()),
                         )
 
                 else:

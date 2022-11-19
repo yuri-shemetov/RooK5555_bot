@@ -9,7 +9,8 @@ class SQLighter:
         self.cursor.execute(
             "CREATE TABLE IF NOT EXISTS subscriptions (id INTEGER AUTO_INCREMENT PRIMARY KEY, \
                         user_id VARCHAR (255) NOT NULL, reviewed BOOLEAN, approve BOOLEAN, \
-                        price DECIMAL, rate CHAR (3), translation DECIMAL, address CHAR, photo BLOB, created CHAR)"
+                        price DECIMAL, rate CHAR (3), translation DECIMAL, address CHAR, \
+                        photo BLOB, created CHAR, start_timestamp INT)"
         )
 
     def subscriber_exists(self, user_id):
@@ -20,22 +21,22 @@ class SQLighter:
             ).fetchall()
             return bool(len(result))
 
-    def add_subscriber(self, user_id, rate, price, translation, created, reviewed=True):
+    def add_subscriber(self, user_id, rate, price, translation, created, start_timestamp, reviewed=True):
         """Add a new user"""
         with self.connection:
             return self.cursor.execute(
-                "INSERT INTO `subscriptions` (`user_id`, 'reviewed', 'rate', 'price', 'translation', 'created') "
-                "VALUES(?, ?, ?, ?, ?, ?)",
-                (user_id, reviewed, rate, price, translation, created),
+                "INSERT INTO `subscriptions` (`user_id`, 'reviewed', 'rate', 'price', 'translation', 'created', 'start_timestamp') "
+                "VALUES(?, ?, ?, ?, ?, ?, ?)",
+                (user_id, reviewed, rate, price, translation, created, start_timestamp),
             )
 
-    def update_subscription(self, user_id, rate, price, translation, created):
+    def update_subscription(self, user_id, rate, price, translation, created, start_timestamp):
         """Update user"""
         with self.connection:
             return self.cursor.execute(
-                "UPDATE `subscriptions` SET `rate` = ?, `price` = ?, 'translation' = ?, 'created' = ? "
+                "UPDATE `subscriptions` SET `rate` = ?, `price` = ?, 'translation' = ?, 'created' = ?, 'start_timestamp' = ? "
                 "WHERE `user_id` = ?",
-                (rate, price, translation, created, user_id),
+                (rate, price, translation, created, start_timestamp, user_id),
             )
 
     def update_subscription_address_reviewed_and_approve(
@@ -109,6 +110,14 @@ class SQLighter:
         with self.connection:
             return self.cursor.execute(
                 "SELECT `reviewed` FROM `subscriptions` WHERE `user_id` = ?", (user_id,)
+            ).fetchall()
+
+    def get_subscriptions_start_timestamp(self, user_id):
+        """Get start_timestamp"""
+        with self.connection:
+            return self.cursor.execute(
+                "SELECT `start_timestamp` FROM `subscriptions` WHERE `user_id` = ?",
+                (user_id,),
             ).fetchall()
 
     def close(self):

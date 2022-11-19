@@ -42,6 +42,7 @@ from bot_app.wallet_balance import check_wallet
 
 from decimal import *
 from datetime import datetime
+from time import time
 
 from os import mkdir, path
 
@@ -360,9 +361,21 @@ async def process_message(message: types.Message, state: FSMContext):
             user_message=user_message,
         )
         # Check timestamp
-        await bot.send_message(
-            message.from_user.id, messages.STATUS_WAIT_MESSAGE, parse_mode="HTML"
-        )
+        start_timestamp = db.get_subscriptions_start_timestamp(message.from_user.id)[0][0]
+        end_timestamp = int(time())
+        if (end_timestamp - start_timestamp) < 900:
+            await bot.send_message(
+                message.from_user.id, messages.STATUS_WAIT_MESSAGE, parse_mode="HTML"
+            )
+        else:
+            await bot.send_message(
+                message.from_user.id,
+                messages.STATUS_MORE_15_MINUTES_MESSAGE,
+                parse_mode="HTML",
+                reply_markup=inline_replay_new
+            )
+            await state.finish()
+            return
 
     except:
         await message.reply(messages.ERROR_YANDEX)
