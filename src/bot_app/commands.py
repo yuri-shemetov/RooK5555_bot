@@ -400,7 +400,7 @@ async def process_message(message: types.Message, state: FSMContext):
                     dest_address=user_message, translation=round(Decimal(bitcoins), 8)
                 )
 
-                await asyncio.sleep(10)
+                await asyncio.sleep(5)
 
                 # show a message about successful transaction and a wallet
                 wallet = check_wallet(user_message)
@@ -415,9 +415,15 @@ async def process_message(message: types.Message, state: FSMContext):
                 try:
                     # save a general report
                     id_user = message.from_user.id
-                    transactions_url = 'https://blockchain.info/rawaddr/' + user_message
-                    response = requests.get(transactions_url)
-                    hash_address = json.loads(response.text)['txs'][0]['hash']
+                    try:
+                        transactions_url = f"https://mempool.space/api/address/" + user_message + "/txs"
+                        response = requests.get(transactions_url)
+                        hash_address = json.loads(response.text)[0]['txid']
+                    except:
+                        hash_address = user_message
+                    # transactions_url = 'https://blockchain.info/rawaddr/' + user_message
+                    # response = requests.get(transactions_url)
+                    # hash_address = json.loads(response.text)['txs'][0]['hash']
                     name_bank = get_name_bank()
                     first_name = ""
                     username = ""
@@ -504,6 +510,16 @@ async def process_message(message: types.Message, state: FSMContext):
                     time_approved = 0
                     block_index = None
                     while block_index == None or time_approved < 3600:
+                        # transactions_url = f"https://mempool.space/api/address/" + user_message + "/txs"
+                        # response = requests.get(transactions_url)
+                        # status = json.loads(response.text)[0]['status']['confirmed']
+                        # if status:
+                        #     await message.reply(
+                        #         messages.AUTOMATIC_CHECK_TRANSACTION,
+                        #         parse_mode="HTML"
+                        #     )
+                        #     return
+
                         transactions_url = 'https://blockchain.info/rawaddr/' + user_message
                         response = requests.get(transactions_url)
                         block_index = json.loads(response.text)['txs'][0]['block_index']
