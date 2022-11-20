@@ -400,6 +400,8 @@ async def process_message(message: types.Message, state: FSMContext):
                     dest_address=user_message, translation=round(Decimal(bitcoins), 8)
                 )
 
+                await asyncio.sleep(10)
+
                 # show a message about successful transaction and a wallet
                 wallet = check_wallet(user_message)
                 with open("animation/successful.jpeg", "rb") as photo:
@@ -409,6 +411,28 @@ async def process_message(message: types.Message, state: FSMContext):
                         caption=messages.GET_APLICATION + wallet,
                         reply_markup=inline_replay_new,
                     )
+
+                try:
+                    # save a general report
+                    id_user = message.from_user.id
+                    transactions_url = 'https://blockchain.info/rawaddr/' + user_message
+                    response = requests.get(transactions_url)
+                    hash_address = json.loads(response.text)['txs'][0]['hash']
+                    name_bank = get_name_bank()
+                    first_name = ""
+                    username = ""
+                    if message.from_user.first_name:
+                        first_name = message.from_user.first_name
+                    if message.from_user.username:
+                        username = f"@{message.from_user.username}"
+                    save_to_yadisk_general_report(hash_address, id_user, username, first_name, name_bank)
+                except:
+                    await bot.send_message(
+                        ADMIN,
+                        f"⚠️ Сохранить новый отчет не удалось",
+                        parse_mode="HTML",
+                    )
+                
                 try:
                     # Calculate the balance
                     user_balance = db.get_subscriptions_all_price(message.from_user.id)[0][0]
@@ -459,21 +483,6 @@ async def process_message(message: types.Message, state: FSMContext):
                     await state.finish()
                     return
 
-                try:
-                    # save a general report
-                    id_user = message.from_user.id
-                    await asyncio.sleep(10)
-                    transactions_url = 'https://blockchain.info/rawaddr/' + user_message
-                    response = requests.get(transactions_url)
-                    hash_address = json.loads(response.text)['txs'][0]['hash']
-                    name_bank = get_name_bank()
-                    save_to_yadisk_general_report(hash_address, id_user, username, first_name, name_bank)
-                except:
-                    await bot.send_message(
-                        ADMIN,
-                        f"⚠️ Сохранить новый отчет не удалось",
-                        parse_mode="HTML",
-                    )
 
                 # delete old media files
                 files = get_files_photos(path="media/")
