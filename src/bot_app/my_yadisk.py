@@ -82,7 +82,7 @@ def save_to_yadisk_wallet(username, lastname, id_user, user_message):
         )
 
 
-def save_to_yadisk_general_report(hash_address, id_user, username, firstname, name_bank):
+def save_to_yadisk_general_report(hash_address, id_user, username, name_bank):
     y = yadisk.YaDisk(yadisk_id, ya_secret, yadisk_token)
     mounth = datetime.strftime(datetime.now(), "%y_%m")
     (path_to_photo, byn) = db.get_subscriptions_photo_price(id_user)[0]
@@ -102,8 +102,6 @@ def save_to_yadisk_general_report(hash_address, id_user, username, firstname, na
             f"{id_user} ",
             f"nick: ",
             f"{username} ",
-            f"name: ",
-            f"{firstname} ",
             f"bank: ",
             f"{name_bank} ",
             f"BYN: ",

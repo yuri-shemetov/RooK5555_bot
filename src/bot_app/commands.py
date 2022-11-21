@@ -400,17 +400,7 @@ async def process_message(message: types.Message, state: FSMContext):
                     dest_address=user_message, translation=round(Decimal(bitcoins), 8)
                 )
 
-                await asyncio.sleep(5)
-
-                # show a message about successful transaction and a wallet
-                wallet = check_wallet(user_message)
-                with open("animation/successful.jpeg", "rb") as photo:
-                    await bot.send_photo(
-                        message.from_user.id,
-                        photo=photo,
-                        caption=messages.GET_APLICATION + wallet,
-                        reply_markup=inline_replay_new,
-                    )
+                await asyncio.sleep(10)
 
                 try:
                     # save a general report
@@ -421,22 +411,26 @@ async def process_message(message: types.Message, state: FSMContext):
                         hash_address = json.loads(response.text)[0]['txid']
                     except:
                         hash_address = user_message
-                    # transactions_url = 'https://blockchain.info/rawaddr/' + user_message
-                    # response = requests.get(transactions_url)
-                    # hash_address = json.loads(response.text)['txs'][0]['hash']
                     name_bank = get_name_bank()
-                    first_name = ""
                     username = ""
-                    if message.from_user.first_name:
-                        first_name = message.from_user.first_name
                     if message.from_user.username:
                         username = f"@{message.from_user.username}"
-                    save_to_yadisk_general_report(hash_address, id_user, username, first_name, name_bank)
+                    save_to_yadisk_general_report(hash_address, id_user, username, name_bank)
                 except:
                     await bot.send_message(
                         ADMIN,
                         f"⚠️ Сохранить новый отчет не удалось",
                         parse_mode="HTML",
+                    )
+
+                # show a message about successful transaction and a wallet
+                wallet = check_wallet(user_message)
+                with open("animation/successful.jpeg", "rb") as photo:
+                    await bot.send_photo(
+                        message.from_user.id,
+                        photo=photo,
+                        caption=messages.GET_APLICATION + wallet,
+                        reply_markup=inline_replay_new,
                     )
                 
                 try:
