@@ -205,6 +205,7 @@ def get_new_email(price, servername="imap.yandex.ru"):
                         continue
             elif (
                 subject == "SMS-Extra: [BNB-BANK] -> [375292929301]"
+                or subject == "SMS-Extra: [BNB-BANK] -> [375333896357]"
             ):  # <--- replace the text, SMS from BNB-BANK
                 # Body details
                 for part in email_message.walk():
@@ -240,7 +241,7 @@ def get_new_email(price, servername="imap.yandex.ru"):
                                 for word in words:
                                     i += 1
                                     if (
-                                        word == "Zachislen"
+                                        word == "Zachislen" or word == "Zachislen"
                                     ):  # <--- replace the text, BNB-BANK
                                         money = words[i+1]
                                         return money
@@ -299,7 +300,7 @@ def get_new_email(price, servername="imap.yandex.ru"):
                     else:
                         continue
             elif (
-                subject == "SMS-Extra: [BTA_BANK] -> [375292929301]"
+                subject == "SMS-Extra: [BTA_BANK] -> [375333896357]"
             ):  # <--- replace the text, SMS from BTA_BANK
                 # Body details
                 for part in email_message.walk():
@@ -382,11 +383,24 @@ def get_new_email(price, servername="imap.yandex.ru"):
                                 i = 0
                                 for word in words:
                                     i += 1
+
                                     if (
-                                        word == "Popolnenie" and words[i] == "Uspeshno"
+                                        word == "Popolnenie" and words[i] == "Uspeshno" and len(words[i+4]) != 1
                                     ):  # <--- replace the text, BSB-Bank
                                         money = words[i+4]
                                         return money
+                                    elif (
+                                        word == "Popolnenie" and words[i] == "Uspeshno" and len(words[i+4]) == 1
+                                    ):  # <--- replace the text, BSB-Bank
+                                        parameters = [words[i+4], words[i+5]]
+                                        money = "".join(parameters)
+                                        return money
+
+                                    # if (
+                                    #     word == "Popolnenie" and words[i] == "Uspeshno"
+                                    # ):  # <--- replace the text, BSB-Bank
+                                    #     money = words[i+4]
+                                    #     return money
                                 return money
 
                         except:
