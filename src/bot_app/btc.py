@@ -37,7 +37,7 @@ async def process_message(message: types.Message, state: FSMContext):
             async with state.proxy() as data:
                 data["text"] = message.text
                 user_message = data["text"]
-            BTC_BYN = currency_rate()
+            BTC_BYN = currency_rate(btc=Decimal(user_message))
             MIN_BYN = min_amount()
             MIN_BTC = round(
                 Decimal((MIN_BYN - Decimal(open_settings.fees()) - Decimal(0.5)) / BTC_BYN),

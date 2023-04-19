@@ -40,7 +40,7 @@ async def process_message(message: types.Message, state: FSMContext):
 
                 balance = get_balance_bitcoins()
 
-                BTC_BYN = currency_rate()
+                BTC_BYN = currency_rate(amount=int(user_message))
                 money = round(
                     (
                         Decimal(user_message)
