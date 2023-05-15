@@ -181,16 +181,62 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
     # Registered user
     elif callback_query.from_user.id in registered_users_list and on_or_off == "on":
         byn = db.get_subscriptions_all_price(callback_query.from_user.id)[0][0]
-        text = "Итого к оплате: *" + str(byn) + " BYN*"
-        btc = db.get_subscriptions_translation(callback_query.from_user.id)[0][0]
-        count_btc = "Вам будет переведено  *" + str(btc) + " BTC*"
+        total_amount = db.get_subscriptions_total_amount(callback_query.from_user.id)[0]
 
+        if total_amount:
+            if total_amount < 3000:
+                text = messages.TEXT_FOR_PRICE.format(str(byn))
+                loyalty = messages.TEXT_FOR_LOYALTY.format(total_amount, '20', int(3000 - total_amount))
+            elif total_amount < 7000:
+                byn_loyalty = round(Decimal(byn * 0.995))
+                db.update_subscription_price(callback_query.from_user.id, byn_loyalty)
+                byn_loyalty = db.get_subscriptions_all_price(callback_query.from_user.id)[0][0]
+                text = messages.TEXT_FOR_PRICE_LOYALTY.format(str(byn), str(byn_loyalty))
+                loyalty = messages.TEXT_FOR_LOYALTY.format(total_amount, '40', int(7000 - total_amount))
+            elif total_amount < 15000:
+                byn_loyalty = round(Decimal(byn * 0.99))
+                db.update_subscription_price(callback_query.from_user.id, byn_loyalty)
+                byn_loyalty = db.get_subscriptions_all_price(callback_query.from_user.id)[0][0]
+                text = messages.TEXT_FOR_PRICE_LOYALTY.format(str(byn), str(byn_loyalty))
+                loyalty = messages.TEXT_FOR_LOYALTY.format(total_amount, '60', int(15000 - total_amount))
+            elif total_amount < 30000:
+                byn_loyalty = round(Decimal(byn * 0.985))
+                db.update_subscription_price(callback_query.from_user.id, byn_loyalty)
+                byn_loyalty = db.get_subscriptions_all_price(callback_query.from_user.id)[0][0]
+                text = messages.TEXT_FOR_PRICE_LOYALTY.format(str(byn), str(byn_loyalty))
+                loyalty = messages.TEXT_FOR_LOYALTY.format(total_amount, '80', int(30000 - total_amount))
+            elif total_amount < 60000:
+                byn_loyalty = round(Decimal(byn * 0.98))
+                db.update_subscription_price(callback_query.from_user.id, byn_loyalty)
+                byn_loyalty = db.get_subscriptions_all_price(callback_query.from_user.id)[0][0]
+                text = messages.TEXT_FOR_PRICE_LOYALTY.format(str(byn), str(byn_loyalty))
+                loyalty = messages.TEXT_FOR_LOYALTY.format(total_amount, '100', int(60000 - total_amount))
+            elif total_amount >= 60000:
+                byn_loyalty = round(Decimal(byn * 0.975))
+                db.update_subscription_price(callback_query.from_user.id, byn_loyalty)
+                byn_loyalty = db.get_subscriptions_all_price(callback_query.from_user.id)[0][0]
+                text = messages.TEXT_FOR_PRICE_LOYALTY.format(str(byn), str(byn_loyalty))
+                loyalty = messages.TEXT_FOR_LOYALTY_THANKS.format(total_amount)
+
+                """
+                    3000 рублей - скидка 0.5%
+                    7000 рублей - скидка 1%
+                    15000 рублей - скидка 1.5%
+                    30000 рублей - скидка 2%
+                    60000 рублей - скидка 2.5% 
+                """
+        else:
+            text = messages.TEXT_FOR_PRICE.format(str(byn))
+            loyalty = messages.TEXT_FOR_LOYALTY_ZERO
+
+        btc = db.get_subscriptions_translation(callback_query.from_user.id)[0][0]
+        count_btc = messages.TEXT_FOR_COUNT_BTC.format(str(btc))
         now_requisiters = get_requisiters()
 
         await bot.send_message(
             callback_query.from_user.id,
-            f"{text}\n{count_btc}\n\n{now_requisiters}",
-            parse_mode="Markdown",
+            f"{text}\n{count_btc}\n\n{loyalty}\n\n{now_requisiters}",
+            parse_mode="HTML",
             reply_markup=inline_pay,
         )
 
@@ -432,6 +478,18 @@ async def process_message(message: types.Message, state: FSMContext):
                         caption=messages.GET_APLICATION + wallet,
                         reply_markup=inline_replay_new,
                     )
+                
+                try:
+                    # Total amount for loyalty program
+                    total_amount = db.get_subscriptions_total_amount(message.from_user.id)[0]
+                    if total_amount:
+                        total = round(Decimal(price) + Decimal(total_amount))
+                        db.update_subscription_total_amount(message.from_user.id, total)
+                    else:
+                        db.update_subscription_total_amount(message.from_user.id, price)
+
+                except Exception as exc:
+                    await message.reply(messages.ERROR_TOTAL_AMOUNT_LOYATY.format(exc), parse_mode="HTML")
                 
                 try:
                     # Calculate the balance

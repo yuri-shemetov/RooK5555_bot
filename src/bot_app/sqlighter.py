@@ -10,7 +10,7 @@ class SQLighter:
             "CREATE TABLE IF NOT EXISTS subscriptions (id INTEGER AUTO_INCREMENT PRIMARY KEY, \
                         user_id VARCHAR (255) NOT NULL, reviewed BOOLEAN, approve BOOLEAN, \
                         price DECIMAL, rate CHAR (3), translation DECIMAL, address CHAR, \
-                        photo BLOB, created CHAR, start_timestamp INT)"
+                        photo BLOB, created CHAR, start_timestamp INT, total_amount DECIMAL)"
         )
 
     def subscriber_exists(self, user_id):
@@ -66,6 +66,22 @@ class SQLighter:
                 "UPDATE `subscriptions` SET `photo` = ? WHERE `user_id` = ?",
                 (photo, user_id),
             )
+        
+    def update_subscription_price(self, user_id, price):
+        """Update price"""
+        with self.connection:
+            return self.cursor.execute(
+                "UPDATE `subscriptions` SET `price` = ? WHERE `user_id` = ?",
+                (price, user_id),
+            )
+    
+    def update_subscription_total_amount(self, user_id, total_amount):
+        """Update total_amount"""
+        with self.connection:
+            return self.cursor.execute(
+                "UPDATE `subscriptions` SET `total_amount` = ? WHERE `user_id` = ?",
+                (total_amount, user_id),
+            )
 
     def get_subscriptions_all_price(self, user_id):
         """Get all price"""
@@ -73,6 +89,13 @@ class SQLighter:
             return self.cursor.execute(
                 "SELECT `price` FROM `subscriptions` WHERE `user_id` = ?", (user_id,)
             ).fetchall()
+    
+    def get_subscriptions_total_amount(self, user_id):
+        """Get total amount for loyalty program"""
+        with self.connection:
+            return self.cursor.execute(
+                "SELECT `total_amount` FROM `subscriptions` WHERE `user_id` = ?", (user_id,)
+            ).fetchone()
 
     def get_subscriptions_translation(self, user_id):
         """Get bitcoins"""
