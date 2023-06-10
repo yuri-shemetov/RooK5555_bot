@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import requests
 
 from aiogram import types
@@ -490,6 +491,7 @@ async def process_message(message: types.Message, state: FSMContext):
 
                 except Exception as exc:
                     await message.reply(messages.ERROR_TOTAL_AMOUNT_LOYATY.format(exc), parse_mode="HTML")
+                    logging.info(f"Error. Total amount for loyalty program. {exc}")
                 
                 try:
                     # Calculate the balance
@@ -611,9 +613,10 @@ async def process_message(message: types.Message, state: FSMContext):
             await state.finish()
             return
 
-    except:
+    except Exception as exc:
         await message.reply(
             messages.ERROR_LOOP, reply_markup=inline_replay_new, parse_mode="HTML"
         )
         await state.finish()
+        logging.info(f"Error. Transaction loop. {exc}")
         return

@@ -4,14 +4,14 @@ from bot_app import open_settings
 from decimal import *
 
 
-def currency_rate(amount=500, btc=0.0055):
+def currency_rate(amount=500, btc=0.006):
     try:
         digits = open_settings.byn()
         BTC_USD = currency_usd.currency_rate()
         percent = Decimal((open_settings.percent() / 100) + 1)
-        percent_bonus = Decimal((open_settings.percent() - 1) / 100 + 1)
+        percent_bonus = Decimal((Decimal(open_settings.percent()) - Decimal(0.5)) / 100 + 1)
 
-        if amount > 500 or btc > 0.0055:
+        if amount >= 500 and btc >= 0.006:
             byn = (
                 Decimal(BTC_USD)
                 * Decimal(digits)
