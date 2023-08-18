@@ -190,32 +190,32 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
                 loyalty = messages.TEXT_FOR_LOYALTY.format(total_amount, '20', int(3000 - total_amount))
             elif total_amount < 7000:
                 byn_loyalty = round(Decimal(byn * 0.995))
-                db.update_subscription_price(callback_query.from_user.id, byn_loyalty)
-                byn_loyalty = db.get_subscriptions_all_price(callback_query.from_user.id)[0][0]
+                db.update_subscription_loyalty_price(callback_query.from_user.id, byn_loyalty) # update loyalty price
+                byn_loyalty = db.get_subscriptions_all_loyalty_price(callback_query.from_user.id)[0][0] # get loyalty price
                 text = messages.TEXT_FOR_PRICE_LOYALTY.format(str(byn), str(byn_loyalty))
                 loyalty = messages.TEXT_FOR_LOYALTY.format(total_amount, '40', int(7000 - total_amount))
             elif total_amount < 15000:
                 byn_loyalty = round(Decimal(byn * 0.99))
-                db.update_subscription_price(callback_query.from_user.id, byn_loyalty)
-                byn_loyalty = db.get_subscriptions_all_price(callback_query.from_user.id)[0][0]
+                db.update_subscription_loyalty_price(callback_query.from_user.id, byn_loyalty) # update loyalty price
+                byn_loyalty = db.get_subscriptions_all_loyalty_price(callback_query.from_user.id)[0][0] # get loyalty price
                 text = messages.TEXT_FOR_PRICE_LOYALTY.format(str(byn), str(byn_loyalty))
                 loyalty = messages.TEXT_FOR_LOYALTY.format(total_amount, '60', int(15000 - total_amount))
             elif total_amount < 30000:
                 byn_loyalty = round(Decimal(byn * 0.985))
-                db.update_subscription_price(callback_query.from_user.id, byn_loyalty)
-                byn_loyalty = db.get_subscriptions_all_price(callback_query.from_user.id)[0][0]
+                db.update_subscription_loyalty_price(callback_query.from_user.id, byn_loyalty) # update loyalty price
+                byn_loyalty = db.get_subscriptions_all_loyalty_price(callback_query.from_user.id)[0][0] # get loyalty price
                 text = messages.TEXT_FOR_PRICE_LOYALTY.format(str(byn), str(byn_loyalty))
                 loyalty = messages.TEXT_FOR_LOYALTY.format(total_amount, '80', int(30000 - total_amount))
             elif total_amount < 60000:
                 byn_loyalty = round(Decimal(byn * 0.98))
-                db.update_subscription_price(callback_query.from_user.id, byn_loyalty)
-                byn_loyalty = db.get_subscriptions_all_price(callback_query.from_user.id)[0][0]
+                db.update_subscription_loyalty_price(callback_query.from_user.id, byn_loyalty) # update loyalty price
+                byn_loyalty = db.get_subscriptions_all_loyalty_price(callback_query.from_user.id)[0][0] # get loyalty price
                 text = messages.TEXT_FOR_PRICE_LOYALTY.format(str(byn), str(byn_loyalty))
                 loyalty = messages.TEXT_FOR_LOYALTY.format(total_amount, '100', int(60000 - total_amount))
             elif total_amount >= 60000:
                 byn_loyalty = round(Decimal(byn * 0.975))
-                db.update_subscription_price(callback_query.from_user.id, byn_loyalty)
-                byn_loyalty = db.get_subscriptions_all_price(callback_query.from_user.id)[0][0]
+                db.update_subscription_loyalty_price(callback_query.from_user.id, byn_loyalty) # update loyalty price
+                byn_loyalty = db.get_subscriptions_all_loyalty_price(callback_query.from_user.id)[0][0] # get loyalty price
                 text = messages.TEXT_FOR_PRICE_LOYALTY.format(str(byn), str(byn_loyalty))
                 loyalty = messages.TEXT_FOR_LOYALTY_THANKS.format(total_amount)
 
@@ -432,7 +432,14 @@ async def process_message(message: types.Message, state: FSMContext):
     # Waiting for a transaction
 
     try:
-        price = db.get_subscriptions_all_price(message.from_user.id)[0][0]
+        try:
+            byn_loyalty = db.get_subscriptions_all_loyalty_price(message.from_user.id)[0][0]
+            if byn_loyalty:
+                price = byn_loyalty
+            else:
+                price = db.get_subscriptions_all_price(message.from_user.id)[0][0]
+        except Exception as exc:
+            price = db.get_subscriptions_all_price(message.from_user.id)[0][0]
         time_wait = 0
 
         while time_wait != 60:  # 10 minutes

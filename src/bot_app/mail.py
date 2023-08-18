@@ -454,6 +454,54 @@ def get_new_email(price, servername="imap.yandex.ru"):
                             return money
                     else:
                         continue
+            elif (
+                subject == "SMS-Extra: [ZepterBank] -> [375292929301]"
+                or subject == "SMS-Extra: [ZepterBank] -> [375333896357]"
+            ):  # <--- replace the text, SMS from ZepterBank
+                # Body details
+                for part in email_message.walk():
+                    if (
+                        part.get_content_type() == "text/plain"
+                        or part.get_content_type() == "text/html"
+                    ):
+                        body = part.get_payload(decode=True)
+                        
+                        if not path.exists("message/"):
+                            mkdir(f"message/")
+
+                        file_name = "message/" + f"{date_message}.txt"
+                        output_file = open(file_name, "w", encoding="utf-8")
+                        output_file.write(
+                            "From: %s\nTo: %s\nDate: %s\nSubject: %s\n\nBody: \n\n%s"
+                            % (
+                                email_from,
+                                email_to,
+                                local_message_date,
+                                subject,
+                                body.decode("utf-8"),
+                            )
+                        )
+                        output_file.close()
+                        try:
+                            with io.open(
+                                file_name, mode="r", encoding="utf-8"
+                            ) as f_obj:
+                                contents = f_obj.read()
+                                words = contents.split()
+                                i = 0
+                                for word in words:
+                                    i += 1
+                                    if (
+                                        word == "CREDIT"
+                                    ):  # <--- replace the text, ZepterBank
+                                        money = words[i]
+                                        return money
+                                return money
+
+                        except:
+                            return money
+                    else:
+                        continue            
             # elif (
             #     subject == "SMS-Extra: [MTBANK] -> [375292929301]"
             # ):  # <--- replace the text, SMS from MTBANK
