@@ -151,3 +151,6 @@ src/wallet
 src/22_*
 src/23_*
 src/24_*
+
+# settings
+src/bot_app/admin/settings/*

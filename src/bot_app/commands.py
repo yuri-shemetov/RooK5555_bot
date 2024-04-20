@@ -9,6 +9,7 @@ from bot_app import messages
 from bot_app.admin.choice_requisites import get_requisiters, get_name_bank
 from bot_app.admin.users_list import get_ban_users, get_registered_users
 from bot_app.admin.on_off import get_on_or_off
+from bot_app.admin.settings_crypto import get_btc_state
 from bot_app.app import dp, bot, db, db_applications
 from bot_app.cleaner import (
     get_files_photos,
@@ -28,6 +29,7 @@ from bot_app.keybords import (
     inline_pay,
     inline_photo_ok,
     inline_rate,
+    inline_rate_btc_hidden,
     inline_replay_new,
 )
 from bot_app.mail import get_new_email
@@ -39,7 +41,8 @@ from bot_app.my_yadisk import (
 )
 from bot_app.states import GoStates
 from bot_app.transactions import execute_transaction, get_balance_bitcoins
-from bot_app.wallet_balance import check_wallet
+from bot_app import transactions_usdt
+from bot_app.wallet_balance import check_wallet, check_wallet_usdt
 
 from decimal import *
 from datetime import datetime
@@ -101,9 +104,10 @@ async def send_terms(callback_query: types.CallbackQuery):
         with open("bot_app/admin/settings/byn_balance.txt", "r") as file_byn:
             total_balance = file_byn.read()
         date_time = str(datetime.now().strftime("%H:%M:%S %d.%m.%y"))
+        btc_msg = messages.WELCOME_ADMIN_TURN_ON_BTC if get_btc_state() else messages.WELCOME_ADMIN_TURN_OFF_BTC
         await bot.send_message(
             callback_query.from_user.id,
-            f"{messages.WELCOME_ADMIN_TURN_ON}\
+            f"{messages.WELCOME_ADMIN_TURN_ON}{btc_msg}\
                 \n{date_time}\nСумма на текущем реквизите составляет: <b>{total_balance} BYN</b>",
             reply_markup=inline_admin_and_button_turn_off,
             parse_mode="html",
@@ -115,9 +119,10 @@ async def send_terms(callback_query: types.CallbackQuery):
         with open("bot_app/admin/settings/byn_balance.txt", "r") as file_byn:
             total_balance = file_byn.read()
         date_time = str(datetime.now().strftime("%H:%M:%S %d.%m.%y"))
+        btc_msg = messages.WELCOME_ADMIN_TURN_ON_BTC if get_btc_state() else messages.WELCOME_ADMIN_TURN_OFF_BTC
         await bot.send_message(
             callback_query.from_user.id,
-            f"{messages.WELCOME_ADMIN_TURN_OFF}\
+            f"{messages.WELCOME_ADMIN_TURN_OFF}{btc_msg}\
                 \n{date_time} - Общая сумма на текущем реквизите составляет: {total_balance} BYN",
             reply_markup=inline_admin_and_button_turn_on,
         )
@@ -157,10 +162,13 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
 
     await callback_query.answer()
     await GoStates.go.set()
+    btc_visible = get_btc_state()
+    inline_buttons = inline_rate if btc_visible else inline_rate_btc_hidden
+    msg_btc = messages.CHOISE_RATE_MESSAGE if btc_visible else messages.CHOISE_RATE_MESSAGE_BTC_HIDDEN
     await bot.send_message(
         callback_query.from_user.id,
-        messages.CHOISE_RATE_MESSAGE,
-        reply_markup=inline_rate,
+        msg_btc,
+        reply_markup=inline_buttons,
     )
 
 
@@ -230,13 +238,14 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
             text = messages.TEXT_FOR_PRICE.format(str(byn))
             loyalty = messages.TEXT_FOR_LOYALTY_ZERO
 
-        btc = db.get_subscriptions_translation(callback_query.from_user.id)[0][0]
-        count_btc = messages.TEXT_FOR_COUNT_BTC.format(str(btc))
+        coins, rate = db.get_subscriptions_translation(callback_query.from_user.id)[0]
+        rate = "USDT"  if "USDT" in rate else "BTC"
+        count_coins = messages.TEXT_FOR_COUNT_COINS.format(str(coins), rate)
         now_requisiters = get_requisiters()
 
         await bot.send_message(
             callback_query.from_user.id,
-            f"{text}\n{count_btc}\n\n{loyalty}\n\n{now_requisiters}",
+            f"{text}\n{count_coins}\n\n{loyalty}\n\n{now_requisiters}",
             parse_mode="HTML",
             reply_markup=inline_pay,
         )
@@ -410,9 +419,12 @@ async def process_message(message: types.Message, state: FSMContext):
         # Check timestamp
         start_timestamp = db.get_subscriptions_start_timestamp(message.from_user.id)[0][0]
         end_timestamp = int(time())
+        cryptocurrency = "USDT" if "T" == user_message[0] else "BTC"
         if (end_timestamp - start_timestamp) < 900:
             await bot.send_message(
-                message.from_user.id, messages.STATUS_WAIT_MESSAGE, parse_mode="HTML"
+                message.from_user.id,
+                messages.STATUS_WAIT_MESSAGE.format(cryptocurrency, cryptocurrency),
+                parse_mode="HTML"
             )
         else:
             await bot.send_message(
@@ -449,12 +461,22 @@ async def process_message(message: types.Message, state: FSMContext):
 
             if Decimal(money) == Decimal(price):
                 # transaction
-                bitcoins = db.get_subscriptions_translation(message.from_user.id)[0][0]
-                execute_transaction(
-                    dest_address=user_message, translation=round(Decimal(bitcoins), 8)
-                )
+                coins, rate = db.get_subscriptions_translation(message.from_user.id)[0]
+                if "USDT" in rate:
+                    tx = transactions_usdt.create_transaction(
+                        dest_address=user_message, translation=round(Decimal(coins), 0)
+                    )
+                    wallet = check_wallet_usdt(tx.txid)
+                    balance = Decimal(transactions_usdt.get_balance()) - round(Decimal(coins), 0)
+                    transactions_usdt.execute_transaction(tx)
+                else:
+                    execute_transaction(
+                        dest_address=user_message, translation=round(Decimal(coins), 8)
+                    )
 
-                await asyncio.sleep(10)
+                    await asyncio.sleep(10)
+                    wallet = check_wallet(user_message)
+                    balance = Decimal(get_balance_bitcoins()) - round(Decimal(coins), 8)
 
                 try:
                     # save a general report
@@ -478,7 +500,6 @@ async def process_message(message: types.Message, state: FSMContext):
                     )
 
                 # show a message about successful transaction and a wallet
-                wallet = check_wallet(user_message)
                 with open("animation/successful.jpeg", "rb") as photo:
                     await bot.send_photo(
                         message.from_user.id,
@@ -516,7 +537,6 @@ async def process_message(message: types.Message, state: FSMContext):
 
                 try:
                     # send a message about successful payment
-                    balance = Decimal(get_balance_bitcoins()) - round(Decimal(bitcoins), 8)
                     if message.from_user.first_name:
                         first_name = message.from_user.first_name
                     else:
@@ -531,18 +551,18 @@ async def process_message(message: types.Message, state: FSMContext):
                         await bot.send_message(
                             ADMIN,
                             f"❗️❗️❗️ Достигнут максимальный баланс счетчика - 2K.\
-                                \n✅️ Бот перевел {round(Decimal(bitcoins), 8)} BTC пользователю \
+                                \n✅️ Бот перевел {round(Decimal(coins), 8)} {rate} пользователю \
                                 \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
-                                \nПримерно осталось: {balance} BTC",
+                                \nПримерно осталось: {balance} {rate}",
                             parse_mode="HTML",
                         )
 
                     else:
                         await bot.send_message(
                             ADMIN,
-                            f"✅️ Бот перевел {round(Decimal(bitcoins), 8)} BTC пользователю \
+                            f"✅️ Бот перевел {round(Decimal(coins), 8)} {rate} пользователю \
                                 \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
-                                \nПримерно осталось: {balance} BTC",
+                                \nПримерно осталось: {balance} {rate}",
                             parse_mode="HTML",
                         )
                 except:
@@ -566,46 +586,48 @@ async def process_message(message: types.Message, state: FSMContext):
                 await state.finish()
                 
                 # Approved from blockchain
-                try:
-                    await asyncio.sleep(30)
-                    time_approved = 0
-                    block_index = None
-                    while block_index == None or time_approved < 3600:
-                        # transactions_url = f"https://mempool.space/api/address/" + user_message + "/txs"
-                        # response = requests.get(transactions_url)
-                        # status = json.loads(response.text)[0]['status']['confirmed']
-                        # if status:
-                        #     await message.reply(
-                        #         messages.AUTOMATIC_CHECK_TRANSACTION,
-                        #         parse_mode="HTML"
-                        #     )
-                        #     return
-
-                        transactions_url = 'https://blockchain.info/rawaddr/' + user_message
-                        response = requests.get(transactions_url)
-                        block_index = json.loads(response.text)['txs'][0]['block_index']
-                        if block_index != None:
-                            await message.reply(
-                                messages.AUTOMATIC_CHECK_TRANSACTION,
-                                parse_mode="HTML"
-                            )
-                            return
-
-                        await asyncio.sleep(60)
-                        time_approved += 60
-                                
-                    await message.reply(
-                        messages.AUTOMATIC_CHECK_TRANSACTION_1_HOUR,
-                        parse_mode="HTML"
-                    )
-
-                except:
-                    await message.reply(
-                        messages.MANUAL_CHECK_TRANSACTION,
-                        parse_mode="HTML"
-                    )
+                if "USDT" in rate:
                     return
+                else:
+                    try:
+                        await asyncio.sleep(30)
+                        time_approved = 0
+                        block_index = None
+                        while block_index == None or time_approved < 3600:
+                            # transactions_url = f"https://mempool.space/api/address/" + user_message + "/txs"
+                            # response = requests.get(transactions_url)
+                            # status = json.loads(response.text)[0]['status']['confirmed']
+                            # if status:
+                            #     await message.reply(
+                            #         messages.AUTOMATIC_CHECK_TRANSACTION,
+                            #         parse_mode="HTML"
+                            #     )
+                            #     return
 
+                            transactions_url = 'https://blockchain.info/rawaddr/' + user_message
+                            response = requests.get(transactions_url)
+                            block_index = json.loads(response.text)['txs'][0]['block_index']
+                            if block_index != None:
+                                await message.reply(
+                                    messages.AUTOMATIC_CHECK_TRANSACTION,
+                                    parse_mode="HTML"
+                                )
+                                return
+
+                            await asyncio.sleep(60)
+                            time_approved += 60
+                                    
+                        await message.reply(
+                            messages.AUTOMATIC_CHECK_TRANSACTION_1_HOUR,
+                            parse_mode="HTML"
+                        )
+
+                    except:
+                        await message.reply(
+                            messages.MANUAL_CHECK_TRANSACTION,
+                            parse_mode="HTML"
+                        )
+                        return
                 return
 
             await asyncio.sleep(10)
