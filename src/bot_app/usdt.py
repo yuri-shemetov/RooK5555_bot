@@ -40,13 +40,13 @@ async def process_message(message: types.Message, state: FSMContext):
             USDT_BYN = currency_rate_usdt(usdt=Decimal(user_message))
             MIN_BYN = min_amount()
             MIN_USDT = round(
-                Decimal((MIN_BYN - Decimal(open_settings.fees()) - Decimal(0.5)) / USDT_BYN),
+                Decimal((MIN_BYN - Decimal(open_settings.byn()) * 2 - Decimal(0.5)) / USDT_BYN),
                 0,
             )
             MAX_BYN = max_amount()
             MAX_USDT = round(
                 Decimal(
-                    (MAX_BYN - Decimal(open_settings.fees()) - Decimal(0.5)) / USDT_BYN
+                    (MAX_BYN - Decimal(open_settings.byn()) * 2 - Decimal(0.5)) / USDT_BYN
                 ),
                 0,
             )
@@ -56,7 +56,7 @@ async def process_message(message: types.Message, state: FSMContext):
                 if (Decimal(user_message) + Decimal(3)) <= Decimal(balance):
                     money = round(
                         Decimal(user_message) * Decimal(USDT_BYN)
-                        + Decimal(open_settings.fees())
+                        + Decimal(open_settings.byn()) * 2
                         + Decimal(0.5),
                         0,
                     )
