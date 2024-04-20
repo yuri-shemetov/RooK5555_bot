@@ -42,7 +42,7 @@ async def process_message(message: types.Message, state: FSMContext):
 
                 # FROM_MSG_TO_USDT = round(Decimal(int(user_message)) / BYN_USDT)
                 money = round(
-                    (Decimal(user_message) -  Decimal(open_settings.fees()) - Decimal(0.5)) / Decimal(BYN_USDT)
+                    (Decimal(user_message) -  Decimal(open_settings.byn()) * 2 - Decimal(0.5)) / Decimal(BYN_USDT)
                 )
 
                 if (Decimal(money) + Decimal(BYN_USDT)*5) <= Decimal(balance):
