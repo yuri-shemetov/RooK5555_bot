@@ -41,7 +41,7 @@ def create_transaction(dest_address, translation):
     amount_in_wei = int(translation * 10 ** 6)  # Convert to USDT's decimal precision (6 decimals)
     token_contract = tron.get_contract(contract_address)
     token_contract.abi = abi  
-    tx = token_contract.functions.transfer(dest_address, amount_in_wei).with_owner(address).fee_limit(40_000_000).build().sign(pk)
+    tx = token_contract.functions.transfer(dest_address, amount_in_wei).with_owner(address).fee_limit(50_000_000).build().sign(pk)
     
     return tx
 
