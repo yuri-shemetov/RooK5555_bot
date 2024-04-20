@@ -9,10 +9,12 @@ inline_button_answer_for_requisiters_yes = InlineKeyboardButton("Изменит�
 inline_button_answer_to_main = InlineKeyboardButton("На главную", callback_data="replay_new")
 inline_button_applications = InlineKeyboardButton("Списки", callback_data="applications")
 inline_button_apply = InlineKeyboardButton("Запросить доступ", callback_data="apply")
-inline_button_balance_btc = InlineKeyboardButton("Баланс BTC", callback_data="balance")
+inline_button_balance_btc = InlineKeyboardButton("💰 Баланс BTC", callback_data="balance")
 inline_button_black_list = InlineKeyboardButton("Черный список", callback_data="black_list")
 inline_button_btc = InlineKeyboardButton("BTC", callback_data="btc")
-inline_button_byn = InlineKeyboardButton("BYN", callback_data="byn")
+inline_button_byn = InlineKeyboardButton("BYN-BTC", callback_data="byn")
+inline_button_usdt = InlineKeyboardButton("USDT", callback_data="usdt")
+inline_button_byn_usdt = InlineKeyboardButton("BYN-USDT", callback_data="byn_usdt")
 inline_button_cancel = InlineKeyboardButton("Отменить", callback_data="cancel")
 inline_button_сheck_users = InlineKeyboardButton("Проверка Users", callback_data="check_users")
 inline_button_continue = InlineKeyboardButton("Продолжить", callback_data="OK")
@@ -29,11 +31,14 @@ inline_button_percent = InlineKeyboardButton("Процент", callback_data="pe
 inline_button_photo_ok = InlineKeyboardButton("OK", callback_data="photo_ok")
 inline_button_replay_new = InlineKeyboardButton("Начать сначала", callback_data="replay_new")
 inline_button_requisites = InlineKeyboardButton("Реквизиты/Банк", callback_data="applications")
-inline_button_setting = InlineKeyboardButton("Настройки", callback_data="setting")
+inline_button_setting = InlineKeyboardButton("🛠 Настройки", callback_data="setting")
+inline_button_settings_crypto = InlineKeyboardButton("⚖️ Обмен Монет", callback_data="settings_crypto")
 inline_button_stop = InlineKeyboardButton("⛔️ STOP ⛔️", callback_data="stop")
 inline_button_stop_bot_server = InlineKeyboardButton("⛔️ STOP BOT SERVER", callback_data="stop_bot_server")
 inline_button_turn_on = InlineKeyboardButton("Включить бот", callback_data="turn_on")
 inline_button_turn_off = InlineKeyboardButton("Выключить бот", callback_data="turn_off")
+inline_button_turn_on_btc = InlineKeyboardButton("Включить BTC", callback_data="turn_on_btc")
+inline_button_turn_off_btc = InlineKeyboardButton("Выключить BTC", callback_data="turn_off_btc")
 inline_button_usd_byn = InlineKeyboardButton("1USD", callback_data="usd_byn")
 inline_button_yes = InlineKeyboardButton("OK", callback_data="OK")
 
@@ -45,6 +50,7 @@ inline_admin_and_button_turn_off = InlineKeyboardMarkup(row_width=2)
 inline_answer = InlineKeyboardMarkup()
 inline_answer_for_apply = InlineKeyboardMarkup()
 inline_answer_for_notification = InlineKeyboardMarkup()
+inline_answer_to_settings_crypto = InlineKeyboardMarkup(row_width=2)
 inline_answer_for_requisiters = InlineKeyboardMarkup(row_width=2)
 inline_answer_to_main = InlineKeyboardMarkup()
 inline_apply = InlineKeyboardMarkup(row_width=1)
@@ -59,7 +65,8 @@ inline_persona = InlineKeyboardMarkup()
 inline_photo_ok = InlineKeyboardMarkup()
 inline_setting = InlineKeyboardMarkup(row_width=2)
 inline_stop = InlineKeyboardMarkup()
-inline_rate = InlineKeyboardMarkup()
+inline_rate = InlineKeyboardMarkup(row_width=2)
+inline_rate_btc_hidden = InlineKeyboardMarkup(row_width=2)
 inline_replay_new = InlineKeyboardMarkup()
 inline_usd_byn = InlineKeyboardMarkup()
 inline_users = InlineKeyboardMarkup(row_width=2)
@@ -72,6 +79,7 @@ inline_admin_and_button_turn_on.add(
     inline_button_requisites,
     inline_button_balance_btc,
     inline_button_black_list,
+    inline_button_settings_crypto,
     inline_button_turn_on,
     inline_button_stop_bot_server,
     inline_button_notification,
@@ -82,6 +90,7 @@ inline_admin_and_button_turn_off.add(
     inline_button_requisites,
     inline_button_balance_btc,
     inline_button_сheck_users,
+    inline_button_settings_crypto,
     inline_button_turn_off,
     inline_button_stop_bot_server,
     inline_button_notification,
@@ -94,6 +103,7 @@ inline_answer_for_requisiters.add(
     inline_button_answer_for_bank_yes,
     inline_button_answer_to_main,
 )
+inline_answer_to_settings_crypto.row(inline_button_turn_on_btc, inline_button_turn_off_btc)
 inline_answer_to_main.row(inline_button_answer_to_main,)
 inline_apply.add(inline_button_apply, inline_button_cancel,)
 inline_cancel.row(inline_button_cancel,)
@@ -102,7 +112,16 @@ inline_lets_go.row(inline_button_lets_go,)
 inline_new.add(inline_button_new, inline_button_cancel,)
 inline_pay.add(inline_button_paid, inline_button_cancel,)
 inline_photo_ok.add(inline_button_photo_ok,)
-inline_rate.row(inline_button_byn, inline_button_btc,)
+inline_rate.add(
+    inline_button_btc,
+    inline_button_usdt,
+    inline_button_byn,
+    inline_button_byn_usdt
+)
+inline_rate_btc_hidden.add(
+    inline_button_usdt,
+    inline_button_byn_usdt
+)
 inline_replay_new.row(inline_button_replay_new,)
 inline_setting.add(
     inline_button_currency_rate, 

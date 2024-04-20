@@ -9,7 +9,7 @@ class SQLighter:
         self.cursor.execute(
             "CREATE TABLE IF NOT EXISTS subscriptions (id INTEGER AUTO_INCREMENT PRIMARY KEY, \
                         user_id VARCHAR (255) NOT NULL, reviewed BOOLEAN, approve BOOLEAN, \
-                        price DECIMAL, loyalty_price DECIMAL, rate CHAR (3), translation DECIMAL, address CHAR, \
+                        price DECIMAL, loyalty_price DECIMAL, rate CHAR (10), translation DECIMAL, address CHAR, \
                         photo BLOB, created CHAR, start_timestamp INT, total_amount DECIMAL)"
         )
 
@@ -113,10 +113,10 @@ class SQLighter:
             ).fetchone()
 
     def get_subscriptions_translation(self, user_id):
-        """Get bitcoins"""
+        """Get coins"""
         with self.connection:
             return self.cursor.execute(
-                "SELECT `translation` FROM `subscriptions` WHERE `user_id` = ?",
+                "SELECT `translation`, `rate` FROM `subscriptions` WHERE `user_id` = ?",
                 (user_id,),
             ).fetchall()
 

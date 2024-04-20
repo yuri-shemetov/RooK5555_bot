@@ -12,8 +12,7 @@ def get_on_or_off():
     with open("bot_app/admin/settings/on_off.txt", "r") as on_off:
         return on_off.read()
 
-
-# Turn on
+# Turn on service
 @dp.callback_query_handler(lambda c: c.data == "turn_on", state=GoStates.setting)
 async def button_click_call_back(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
@@ -28,7 +27,7 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
     )
 
 
-# Turn off
+# Turn off service
 @dp.callback_query_handler(lambda c: c.data == "turn_off", state=GoStates.setting)
 async def button_click_call_back(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
