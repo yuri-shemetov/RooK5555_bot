@@ -28,8 +28,10 @@ from bot_app.keybords import (
     inline_new,
     inline_pay,
     inline_photo_ok,
-    inline_rate,
-    inline_rate_btc_hidden,
+    inline_rate_btc,
+    inline_rate_coins,
+    inline_rate_coins_btc_hidden,
+    inline_rate_usdt,
     inline_replay_new,
 )
 from bot_app.mail import get_new_email
@@ -156,19 +158,44 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
     )
 
 
-# New application
+# New application - Choise coins
 @dp.callback_query_handler(lambda c: c.data == "new", state=GoStates.everybody_users)
 async def button_click_call_back(callback_query: types.CallbackQuery):
 
     await callback_query.answer()
-    await GoStates.go.set()
+    await GoStates.everybody_users_coin.set()
     btc_visible = get_btc_state()
-    inline_buttons = inline_rate if btc_visible else inline_rate_btc_hidden
+    inline_buttons = inline_rate_coins if btc_visible else inline_rate_coins_btc_hidden
     msg_btc = messages.CHOISE_RATE_MESSAGE if btc_visible else messages.CHOISE_RATE_MESSAGE_BTC_HIDDEN
     await bot.send_message(
         callback_query.from_user.id,
         msg_btc,
         reply_markup=inline_buttons,
+        parse_mode="HTML",
+    )
+
+# New application - BTC
+@dp.callback_query_handler(lambda c: c.data == "btc_coin", state=GoStates.everybody_users_coin)
+async def button_click_call_back(callback_query: types.CallbackQuery):
+
+    await callback_query.answer()
+    await GoStates.go.set()
+    await bot.send_message(
+        callback_query.from_user.id,
+        messages.CHOISE_RATE_MESSAG_COIN,
+        reply_markup=inline_rate_btc,
+    )
+
+# New application - USDT
+@dp.callback_query_handler(lambda c: c.data == "usdt_coin", state=GoStates.everybody_users_coin)
+async def button_click_call_back(callback_query: types.CallbackQuery):
+
+    await callback_query.answer()
+    await GoStates.go.set()
+    await bot.send_message(
+        callback_query.from_user.id,
+        messages.CHOISE_RATE_MESSAG_COIN,
+        reply_markup=inline_rate_usdt,
     )
 
 

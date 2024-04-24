@@ -23,7 +23,7 @@ async def button_click_call_back(
 ):
     await callback_query.answer()
     await bot.send_message(
-        callback_query.from_user.id, f"Введите количество Tether, USDT:"
+        callback_query.from_user.id, f"Введите количество USDT (trc20):"
     )
     await state.finish()
     await GoStates.usdt.set()
