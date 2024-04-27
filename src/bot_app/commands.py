@@ -489,7 +489,8 @@ async def process_message(message: types.Message, state: FSMContext):
             if Decimal(money) == Decimal(price):
                 # transaction
                 coins, rate = db.get_subscriptions_translation(message.from_user.id)[0]
-                if "USDT" in rate:
+                is_usdt = "USDT" in rate
+                if is_usdt:
                     tx = transactions_usdt.create_transaction(
                         dest_address=user_message, translation=round(Decimal(coins), 0)
                     )
@@ -573,23 +574,23 @@ async def process_message(message: types.Message, state: FSMContext):
                     else:
                         username = ""
 
-                    
+                    int_for_rounnd = 2 if is_usdt else 8
                     if Decimal(total_balance) > 2000:
                         await bot.send_message(
                             ADMIN,
                             f"❗️❗️❗️ Достигнут максимальный баланс счетчика - 2K.\
-                                \n✅️ Бот перевел {round(Decimal(coins), 8)} {rate} пользователю \
+                                \n✅️ Бот перевел {round(Decimal(coins), int_for_rounnd)} {rate} пользователю \
                                 \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
-                                \nПримерно осталось: {balance} {rate}",
+                                \nПримерно осталось: {round(Decimal(balance), int_for_rounnd)} {rate}",
                             parse_mode="HTML",
                         )
 
                     else:
                         await bot.send_message(
                             ADMIN,
-                            f"✅️ Бот перевел {round(Decimal(coins), 8)} {rate} пользователю \
+                            f"✅️ Бот перевел {round(Decimal(coins), int_for_rounnd)} {rate} пользователю \
                                 \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
-                                \nПримерно осталось: {balance} {rate}",
+                                \nПримерно осталось: {round(Decimal(balance), int_for_rounnd)} {rate}",
                             parse_mode="HTML",
                         )
                 except:
@@ -613,7 +614,7 @@ async def process_message(message: types.Message, state: FSMContext):
                 await state.finish()
                 
                 # Approved from blockchain
-                if "USDT" in rate:
+                if is_usdt:
                     return
                 else:
                     try:
