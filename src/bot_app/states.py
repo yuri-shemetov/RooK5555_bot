@@ -12,6 +12,7 @@ class GoStates(StatesGroup):
     byn = State()
     delete_user = State()
     everybody_users = State()
+    everybody_users_coin = State()
     fees = State()
     go = State()
     max_amount = State()

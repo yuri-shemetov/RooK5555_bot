@@ -12,9 +12,11 @@ inline_button_apply = InlineKeyboardButton("Запросить доступ", ca
 inline_button_balance_btc = InlineKeyboardButton("💰 Баланс BTC", callback_data="balance")
 inline_button_black_list = InlineKeyboardButton("Черный список", callback_data="black_list")
 inline_button_btc = InlineKeyboardButton("BTC", callback_data="btc")
-inline_button_byn = InlineKeyboardButton("BYN-BTC", callback_data="byn")
-inline_button_usdt = InlineKeyboardButton("USDT", callback_data="usdt")
-inline_button_byn_usdt = InlineKeyboardButton("BYN-USDT", callback_data="byn_usdt")
+inline_button_btc_coin = InlineKeyboardButton("BTC", callback_data="btc_coin")
+inline_button_byn = InlineKeyboardButton("BYN", callback_data="byn")
+inline_button_usdt = InlineKeyboardButton("USDT (trc20)", callback_data="usdt")
+inline_button_usdt_coin = InlineKeyboardButton("USDT (trc20)", callback_data="usdt_coin")
+inline_button_byn_usdt = InlineKeyboardButton("BYN", callback_data="byn_usdt")
 inline_button_cancel = InlineKeyboardButton("Отменить", callback_data="cancel")
 inline_button_сheck_users = InlineKeyboardButton("Проверка Users", callback_data="check_users")
 inline_button_continue = InlineKeyboardButton("Продолжить", callback_data="OK")
@@ -65,8 +67,10 @@ inline_persona = InlineKeyboardMarkup()
 inline_photo_ok = InlineKeyboardMarkup()
 inline_setting = InlineKeyboardMarkup(row_width=2)
 inline_stop = InlineKeyboardMarkup()
-inline_rate = InlineKeyboardMarkup(row_width=2)
-inline_rate_btc_hidden = InlineKeyboardMarkup(row_width=2)
+inline_rate_coins = InlineKeyboardMarkup(row_width=2)
+inline_rate_coins_btc_hidden = InlineKeyboardMarkup(row_width=2)
+inline_rate_btc = InlineKeyboardMarkup(row_width=2)
+inline_rate_usdt = InlineKeyboardMarkup(row_width=2)
 inline_replay_new = InlineKeyboardMarkup()
 inline_usd_byn = InlineKeyboardMarkup()
 inline_users = InlineKeyboardMarkup(row_width=2)
@@ -112,13 +116,18 @@ inline_lets_go.row(inline_button_lets_go,)
 inline_new.add(inline_button_new, inline_button_cancel,)
 inline_pay.add(inline_button_paid, inline_button_cancel,)
 inline_photo_ok.add(inline_button_photo_ok,)
-inline_rate.add(
-    inline_button_btc,
-    inline_button_usdt,
-    inline_button_byn,
-    inline_button_byn_usdt
+inline_rate_coins.add(
+    inline_button_btc_coin,
+    inline_button_usdt_coin,
 )
-inline_rate_btc_hidden.add(
+inline_rate_coins_btc_hidden.add(
+    inline_button_usdt_coin,
+)
+inline_rate_btc.add(
+    inline_button_btc,
+    inline_button_byn,
+)
+inline_rate_usdt.add(
     inline_button_usdt,
     inline_button_byn_usdt
 )

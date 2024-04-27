@@ -1,6 +1,7 @@
 import logging
 import requests
 
+from decimal import Decimal
 from tronpy import Tron
 from tronpy.keys import PrivateKey
 from tronpy.providers import HTTPProvider
