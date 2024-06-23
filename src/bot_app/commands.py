@@ -6,11 +6,11 @@ import requests
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from bot_app import messages
-from bot_app.admin.choice_requisites import get_requisiters, get_name_bank
+from bot_app.admin.choice_requisites import get_requisiters
 from bot_app.admin.users_list import get_ban_users, get_registered_users
 from bot_app.admin.on_off import get_on_or_off
 from bot_app.admin.settings_crypto import get_btc_state
-from bot_app.app import dp, bot, db, db_applications
+from bot_app.app import dp, bot, db, db_applications, db_bank
 from bot_app.cleaner import (
     get_files_photos,
     get_files_wallets,
@@ -103,14 +103,13 @@ async def send_terms(callback_query: types.CallbackQuery):
 
     # Admin user and button "turn_off"
     if callback_query.from_user.id == ADMIN and on_or_off == "on":
-        with open("bot_app/admin/settings/byn_balance.txt", "r") as file_byn:
-            total_balance = file_byn.read()
+        total_balance = db_bank.get_total()[0]
         date_time = str(datetime.now().strftime("%H:%M:%S %d.%m.%y"))
         btc_msg = messages.WELCOME_ADMIN_TURN_ON_BTC if get_btc_state() else messages.WELCOME_ADMIN_TURN_OFF_BTC
         await bot.send_message(
             callback_query.from_user.id,
             f"{messages.WELCOME_ADMIN_TURN_ON}{btc_msg}\
-                \n{date_time}\nСумма на текущем реквизите составляет: <b>{total_balance} BYN</b>",
+                \n{date_time}\nОбщая сумма по всем реквизитам составляет: <b>{total_balance} BYN</b>",
             reply_markup=inline_admin_and_button_turn_off,
             parse_mode="html",
         )
@@ -264,11 +263,11 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
         else:
             text = messages.TEXT_FOR_PRICE.format(str(byn))
             loyalty = messages.TEXT_FOR_LOYALTY_ZERO
-
         coins, rate = db.get_subscriptions_translation(callback_query.from_user.id)[0]
         rate = "USDT"  if "USDT" in rate else "BTC"
         count_coins = messages.TEXT_FOR_COUNT_COINS.format(str(coins), rate)
-        now_requisiters = get_requisiters()
+        now_requisiters, name_bank = get_requisiters()
+        db.update_name_bank(callback_query.from_user.id, name_bank)
 
         await bot.send_message(
             callback_query.from_user.id,
@@ -515,7 +514,7 @@ async def process_message(message: types.Message, state: FSMContext):
                         hash_address = json.loads(response.text)[0]['txid']
                     except:
                         hash_address = user_message
-                    name_bank = get_name_bank()
+                    name_bank = db.get_name_bank(id_user)[0]
                     username = ""
                     if message.from_user.username:
                         username = f"@{message.from_user.username}"
@@ -552,11 +551,9 @@ async def process_message(message: types.Message, state: FSMContext):
                 try:
                     # Calculate the balance
                     user_balance = db.get_subscriptions_all_price(message.from_user.id)[0][0]
-                    with open("bot_app/admin/settings/byn_balance.txt", "r") as file_byn:
-                        get_balance = file_byn.read()
-                    total_balance = Decimal(get_balance) + Decimal(user_balance)
-                    with open("bot_app/admin/settings/byn_balance.txt", "w+") as file_byn:    
-                        file_byn.write(f"{total_balance}")
+                    balance_from_bank = db_bank.get_amount_from_bank(name_bank)[0]
+                    total_balance = Decimal(balance_from_bank) + Decimal(user_balance)
+                    db_bank.update_amount_from_bank(int(total_balance), name_bank)
 
                 except:
                     await message.reply(messages.ERROR_COUNT_BALANCE, parse_mode="HTML")
@@ -578,7 +575,7 @@ async def process_message(message: types.Message, state: FSMContext):
                     if Decimal(total_balance) > 2000:
                         await bot.send_message(
                             ADMIN,
-                            f"❗️❗️❗️ Достигнут максимальный баланс счетчика - 2K.\
+                            f"❗️❗️❗️ Для банка {name_bank} достигнут максимальный баланс счетчика - 2K.\
                                 \n✅️ Бот перевел {round(Decimal(coins), int_for_rounnd)} {rate} пользователю \
                                 \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
                                 \nПримерно осталось: {round(Decimal(balance), int_for_rounnd)} {rate}",
