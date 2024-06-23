@@ -4,8 +4,13 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 inline_button_answer_for_apply_yes = InlineKeyboardButton("Да", callback_data="answer_yes")
 inline_button_answer_for_apply_no = InlineKeyboardButton("Нет", callback_data="answer_no")
 inline_button_answer_for_bank_yes = InlineKeyboardButton("Изменить БАНК", callback_data="bank_yes")
+inline_button_answer_for_bank_amount_zero = InlineKeyboardButton("Обнулить суммы", callback_data="bank_zero_question")
 inline_button_answer_for_notification_yes = InlineKeyboardButton("Написать", callback_data="notification_yes")
-inline_button_answer_for_requisiters_yes = InlineKeyboardButton("Изменить реквизиты", callback_data="requisiters_yes")
+inline_button_answer_for_requisiters_add = InlineKeyboardButton("Добавить", callback_data="requisiters_add")
+inline_button_answer_for_remove_bank_name = InlineKeyboardButton("Удалить", callback_data="remove_bank_name")
+inline_button_answer_for_requisiters_yes = InlineKeyboardButton("Далее", callback_data="requisiters_yes")
+inline_button_answer_for_is_only_day_yes = InlineKeyboardButton("Да", callback_data="is_only_day_yes")
+inline_button_answer_for_is_only_day_no = InlineKeyboardButton("Нет", callback_data="is_only_day_no")
 inline_button_answer_to_main = InlineKeyboardButton("На главную", callback_data="replay_new")
 inline_button_applications = InlineKeyboardButton("Списки", callback_data="applications")
 inline_button_apply = InlineKeyboardButton("Запросить доступ", callback_data="apply")
@@ -54,6 +59,9 @@ inline_answer_for_apply = InlineKeyboardMarkup()
 inline_answer_for_notification = InlineKeyboardMarkup()
 inline_answer_to_settings_crypto = InlineKeyboardMarkup(row_width=2)
 inline_answer_for_requisiters = InlineKeyboardMarkup(row_width=2)
+inline_answer_for_requisiters_add = InlineKeyboardMarkup()
+inline_answer_for_is_only_day = InlineKeyboardMarkup()
+inline_answer_for_question_admin = InlineKeyboardMarkup(row_width=2)
 inline_answer_to_main = InlineKeyboardMarkup()
 inline_apply = InlineKeyboardMarkup(row_width=1)
 inline_cancel = InlineKeyboardMarkup()
@@ -103,12 +111,17 @@ inline_answer.row(inline_button_yes, inline_button_cancel,)
 inline_answer_for_apply.row(inline_button_answer_for_apply_yes, inline_button_answer_for_apply_no,)
 inline_answer_for_notification.row(inline_button_answer_for_notification_yes, inline_button_answer_to_main,)
 inline_answer_for_requisiters.add(
-    inline_button_answer_for_requisiters_yes,
-    inline_button_answer_for_bank_yes,
+    inline_button_answer_for_requisiters_add,
+    inline_button_answer_for_remove_bank_name,
+    inline_button_answer_for_bank_amount_zero,
     inline_button_answer_to_main,
 )
+inline_answer_for_requisiters_add.add(inline_button_answer_for_requisiters_yes)
+inline_answer_for_is_only_day.add(
+    inline_button_answer_for_is_only_day_yes, inline_button_answer_for_is_only_day_no)
 inline_answer_to_settings_crypto.row(inline_button_turn_on_btc, inline_button_turn_off_btc)
 inline_answer_to_main.row(inline_button_answer_to_main,)
+inline_answer_for_question_admin.row(inline_button_answer_for_apply_yes, inline_button_answer_to_main)
 inline_apply.add(inline_button_apply, inline_button_cancel,)
 inline_cancel.row(inline_button_cancel,)
 inline_continue.row(inline_button_continue, inline_button_replay_new,)
