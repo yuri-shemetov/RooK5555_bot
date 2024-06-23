@@ -103,14 +103,13 @@ async def send_terms(callback_query: types.CallbackQuery):
 
     # Admin user and button "turn_off"
     if callback_query.from_user.id == ADMIN and on_or_off == "on":
-        with open("bot_app/admin/settings/byn_balance.txt", "r") as file_byn:
-            total_balance = file_byn.read()
+        total_balance = db_bank.get_total()[0]
         date_time = str(datetime.now().strftime("%H:%M:%S %d.%m.%y"))
         btc_msg = messages.WELCOME_ADMIN_TURN_ON_BTC if get_btc_state() else messages.WELCOME_ADMIN_TURN_OFF_BTC
         await bot.send_message(
             callback_query.from_user.id,
             f"{messages.WELCOME_ADMIN_TURN_ON}{btc_msg}\
-                \n{date_time}\nСумма на текущем реквизите составляет: <b>{total_balance} BYN</b>",
+                \n{date_time}\nОбщая сумма по всем реквизитам составляет: <b>{total_balance} BYN</b>",
             reply_markup=inline_admin_and_button_turn_off,
             parse_mode="html",
         )
@@ -554,7 +553,7 @@ async def process_message(message: types.Message, state: FSMContext):
                     user_balance = db.get_subscriptions_all_price(message.from_user.id)[0][0]
                     balance_from_bank = db_bank.get_amount_from_bank(name_bank)[0]
                     total_balance = Decimal(balance_from_bank) + Decimal(user_balance)
-                    db_bank.update_amount_from_bank(total_balance, name_bank)
+                    db_bank.update_amount_from_bank(int(total_balance), name_bank)
 
                 except:
                     await message.reply(messages.ERROR_COUNT_BALANCE, parse_mode="HTML")

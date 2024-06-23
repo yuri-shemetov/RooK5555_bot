@@ -274,6 +274,12 @@ class Bank:
                 "SELECT `amount` FROM `bank` WHERE `name` = ?",
                 (name_bank,),
             ).fetchone()
+        
+    def get_total(self):
+        with self.connection:
+            return self.cursor.execute(
+                "SELECT SUM(`amount`) FROM `bank` WHERE `is_active` = true",
+            ).fetchone()
 
 
     def update_requisiters(self, requisiters):
@@ -302,9 +308,8 @@ class Bank:
     def update_amount_from_bank(self, amount, name_bank):
         with self.connection:
             return self.cursor.execute(
-                "UPDATE `bank` SET `amount` = ?"
-                "WHERE `name` = ?",
-                (amount, name_bank),
+                "UPDATE `bank` SET `amount` = ? WHERE `name` = ?",
+                (amount, name_bank,),
             )
         
     def remove_requisiters(self, name_bank):
