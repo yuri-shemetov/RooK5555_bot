@@ -398,7 +398,7 @@ def get_new_email(price, servername="imap.yandex.ru"):
                             return money
                     else:
                         continue
-            elif subject == "SMS-Extra: [BelVEB24.BY] -> [375333896357]":  # <--- replace the text, SMS from BelVEB24.BY
+            elif subject in ["SMS-Extra: [BelVEB24.BY] -> [375333896357]", "SMS-Extra: [BelVEB24.BY] -> [375333348682]"]:  # <--- replace the text, SMS from BelVEB24.BY
                 # Body details
                 for part in email_message.walk():
                     if (
@@ -641,7 +641,7 @@ def get_new_email(price, servername="imap.yandex.ru"):
                     else:
                         continue            
             elif (
-                subject == "SMS-Extra: [MTBANK] -> [375333896357]"
+                subject in ["SMS-Extra: [MTBANK] -> [375333896357]", "SMS-Extra: [MTBANK] -> [375333348682]"]
             ):  # <--- replace the text, SMS from MTBANK
                 # Body details
                 for part in email_message.walk():
