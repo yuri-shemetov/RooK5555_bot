@@ -104,10 +104,15 @@ async def process_message(message: types.Message, state: FSMContext):
         bank_name = str(data["text"]).title()
     
     is_exists = db_bank.get_name_bank(bank_name)
-    if is_exists:
+    if is_exists or len(bank_name) > 30:
+        msg = (
+            messages.THE_BANK_NAME_IS_EXISTS.format(bank_name) 
+            if is_exists 
+            else messages.THE_MESSAGE_IS_TOO_LONG.format(len(bank_name))
+        )
         await bot.send_message(
             message.from_user.id,
-            messages.THE_BANK_NAME_IS_EXISTS.format(bank_name),
+            msg,
             reply_markup=inline_answer_to_main,
             parse_mode="HTML",
         )
@@ -143,7 +148,7 @@ async def process_message(message: types.Message, state: FSMContext):
 
     async with state.proxy() as data:
         data["text"] = message.text
-        message_requisiters = str(data["text"]).title()
+        message_requisiters = data["text"]
 
     db_bank.update_requisiters(message_requisiters)
 

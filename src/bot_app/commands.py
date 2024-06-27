@@ -572,10 +572,10 @@ async def process_message(message: types.Message, state: FSMContext):
                         username = ""
 
                     int_for_rounnd = 2 if is_usdt else 8
-                    if Decimal(total_balance) > 2000:
+                    if Decimal(total_balance) > 10000:
                         await bot.send_message(
                             ADMIN,
-                            f"❗️❗️❗️ Для банка {name_bank} достигнут максимальный баланс счетчика - 2K.\
+                            f"❗️❗️❗️ Для банка {name_bank} достигнут максимальный баланс счетчика - 10K.\
                                 \n✅️ Бот перевел {round(Decimal(coins), int_for_rounnd)} {rate} пользователю \
                                 \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
                                 \nПримерно осталось: {round(Decimal(balance), int_for_rounnd)} {rate}",
