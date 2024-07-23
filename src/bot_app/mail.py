@@ -156,7 +156,7 @@ def get_new_email(price, servername="imap.yandex.ru"):
                     else:
                         continue
             elif (
-                subject == "SMS-Extra: [Technobank] -> [375333896357]"
+                subject in ["SMS-Extra: [Technobank] -> [375333896357]", "SMS-Extra: [Technobank] -> [375333348682]"]
             ):  # <--- replace the text, SMS from Technobank
                 # Body details
                 for part in email_message.walk():
@@ -206,7 +206,9 @@ def get_new_email(price, servername="imap.yandex.ru"):
             elif (
                 subject in [
                     "SMS-Extra: [Bank_VTB] -> [375333896357]",
+                    "SMS-Extra: [Bank_VTB] -> [375333348682]",
                     "SMS-Extra: [Paritetbank] -> [375333896357]",
+                    "SMS-Extra: [Paritetbank] -> [375333348682]",
                     "SMS-Extra: [DABRABYT] -> [375333896357]"]
             ):  # Bank_VTB & Paritetbank & DABRABYT
                 # Body details
@@ -254,8 +256,8 @@ def get_new_email(price, servername="imap.yandex.ru"):
                     else:
                         continue
             elif (
-                subject == "SMS-Extra: [SBER-BANK] -> [375333896357]"
-            ):  # <--- replace the text, SMS from SBER-BANK
+                subject in ["SMS-Extra: [SBER-BANK] -> [375333896357]", "SMS-Extra: [SBER-BANK] -> [375333348682]"]
+            ):
                 # Body details
                 for part in email_message.walk():
                     if (
@@ -307,8 +309,8 @@ def get_new_email(price, servername="imap.yandex.ru"):
                     else:
                         continue
             elif (
-                subject == "SMS-Extra: [Alfa-Bank] -> [375333896357]"
-            ):  # <--- replace the text, SMS from Alfa-Bank
+                subject in ["SMS-Extra: [Alfa-Bank] -> [375333896357]", "SMS-Extra: [Alfa-Bank] -> [375333348682]"]
+            ):
                 # Body details
                 for part in email_message.walk():
                     if (
@@ -353,7 +355,7 @@ def get_new_email(price, servername="imap.yandex.ru"):
                             return money
                     else:
                         continue
-            elif subject == "SMS-Extra: [BNB-BANK] -> [375333896357]":  # <--- replace the text, SMS from BNB-BANK
+            elif subject == ["SMS-Extra: [BNB-BANK] -> [375333896357]", "SMS-Extra: [BNB-BANK] -> [375333348682]"]:
                 # Body details
                 for part in email_message.walk():
                     if (
@@ -490,7 +492,7 @@ def get_new_email(price, servername="imap.yandex.ru"):
                             return money
                     else:
                         continue
-            elif subject == "SMS-Extra: [BSB-Bank] -> [375333896357]":  # <--- replace the text, SMS from BSB-Bank
+            elif subject in ["SMS-Extra: [BSB-Bank] -> [375333896357]", "SMS-Extra: [BSB-Bank] -> [375333348682]"]:
                 # Body details
                 for part in email_message.walk():
                     if (
@@ -549,7 +551,7 @@ def get_new_email(price, servername="imap.yandex.ru"):
                     else:
                         continue
             elif (
-                subject == "SMS-Extra: [Reshenie] -> [375333896357]"
+                subject in ["SMS-Extra: [Reshenie] -> [375333896357]", "SMS-Extra: [Reshenie] -> [375333348682]"]
             ):  # <--- replace the text, SMS from Reshenie
                 # Body details
                 for part in email_message.walk():
