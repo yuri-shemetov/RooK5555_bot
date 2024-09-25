@@ -19,6 +19,9 @@ inline_button_black_list = InlineKeyboardButton("Черный список", cal
 inline_button_btc = InlineKeyboardButton("BTC", callback_data="btc")
 inline_button_btc_coin = InlineKeyboardButton("BTC", callback_data="btc_coin")
 inline_button_byn = InlineKeyboardButton("BYN", callback_data="byn")
+inline_button_xmr = InlineKeyboardButton("XMR (Monero)", callback_data="xmr")
+inline_button_xmr_coin = InlineKeyboardButton("XMR (Monero)", callback_data="xmr_coin")
+inline_button_byn_xmr = InlineKeyboardButton("BYN", callback_data="byn_xmr")
 inline_button_usdt = InlineKeyboardButton("USDT (trc20)", callback_data="usdt")
 inline_button_usdt_coin = InlineKeyboardButton("USDT (trc20)", callback_data="usdt_coin")
 inline_button_byn_usdt = InlineKeyboardButton("BYN", callback_data="byn_usdt")
@@ -78,6 +81,7 @@ inline_stop = InlineKeyboardMarkup()
 inline_rate_coins = InlineKeyboardMarkup(row_width=2)
 inline_rate_coins_btc_hidden = InlineKeyboardMarkup(row_width=2)
 inline_rate_btc = InlineKeyboardMarkup(row_width=2)
+inline_rate_xmr = InlineKeyboardMarkup(row_width=2)
 inline_rate_usdt = InlineKeyboardMarkup(row_width=2)
 inline_replay_new = InlineKeyboardMarkup()
 inline_usd_byn = InlineKeyboardMarkup()
@@ -132,13 +136,19 @@ inline_photo_ok.add(inline_button_photo_ok,)
 inline_rate_coins.add(
     inline_button_btc_coin,
     inline_button_usdt_coin,
+    inline_button_xmr_coin,
 )
 inline_rate_coins_btc_hidden.add(
     inline_button_usdt_coin,
+    inline_button_xmr_coin,
 )
 inline_rate_btc.add(
     inline_button_btc,
     inline_button_byn,
+)
+inline_rate_xmr.add(
+    inline_button_xmr,
+    inline_button_byn_xmr
 )
 inline_rate_usdt.add(
     inline_button_usdt,

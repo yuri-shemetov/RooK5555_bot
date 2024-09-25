@@ -11,9 +11,9 @@ db = SQLighter('db.db')
 db_applications = Applications('db.db')
 db_bank = Bank('db.db')
 
-logging.basicConfig(
-    level=logging.INFO,
-    filename="bot_log.log",
-    filemode="w",
-    format="%(asctime)s %(levelname)s %(message)s"
-)
+# logging.basicConfig(
+#     level=logging.INFO,
+#     filename="bot_log.log",
+#     filemode="w",
+#     format="%(asctime)s %(levelname)s %(message)s"
+# )

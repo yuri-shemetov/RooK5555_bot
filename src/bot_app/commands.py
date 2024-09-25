@@ -31,6 +31,7 @@ from bot_app.keybords import (
     inline_rate_btc,
     inline_rate_coins,
     inline_rate_coins_btc_hidden,
+    inline_rate_xmr,
     inline_rate_usdt,
     inline_replay_new,
 )
@@ -184,6 +185,20 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
         messages.CHOISE_RATE_MESSAG_COIN,
         reply_markup=inline_rate_btc,
     )
+
+
+# New application - XRP
+@dp.callback_query_handler(lambda c: c.data == "xmr_coin", state=GoStates.everybody_users_coin)
+async def button_click_call_back(callback_query: types.CallbackQuery):
+
+    await callback_query.answer()
+    await GoStates.go.set()
+    await bot.send_message(
+        callback_query.from_user.id,
+        messages.CHOISE_RATE_MESSAG_COIN,
+        reply_markup=inline_rate_xmr,
+    )
+
 
 # New application - USDT
 @dp.callback_query_handler(lambda c: c.data == "usdt_coin", state=GoStates.everybody_users_coin)

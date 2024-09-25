@@ -54,3 +54,28 @@ def currency_rate_usdt(amount=500, usdt=160):
     except:
         byn = "error"
     return byn
+
+
+def currency_rate_xmr(amount=500, xmr=1):
+    try:
+        digits = open_settings.byn()
+        XMR_USD = currency_usd.currency_rate_xmr()
+        percent = Decimal((open_settings.percent() / 100) + 1)
+        percent_bonus = Decimal((Decimal(open_settings.percent()) - Decimal(0.5)) / 100 + 1)
+
+        if amount >= 500 and xmr >= 1:
+            byn = (
+                Decimal(XMR_USD)
+                * Decimal(digits)
+                * percent_bonus
+            )
+        else:
+            byn = (
+                Decimal(XMR_USD)
+                * Decimal(digits)
+                * percent
+            )
+    
+    except:
+        byn = "error"
+    return byn

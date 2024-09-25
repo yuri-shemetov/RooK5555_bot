@@ -38,3 +38,4 @@ class GoStates(StatesGroup):
     user_registred = State()
     wait = State()
     wait_approve = State()
+    xmr = State()
