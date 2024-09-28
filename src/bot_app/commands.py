@@ -164,12 +164,12 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
     await callback_query.answer()
     await GoStates.everybody_users_coin.set()
     btc_visible = get_btc_state()
-    inline_buttons = inline_rate_coins if btc_visible else inline_rate_coins_btc_hidden
+    # inline_buttons = inline_rate_coins if btc_visible else inline_rate_coins_btc_hidden
     msg_btc = messages.CHOISE_RATE_MESSAGE if btc_visible else messages.CHOISE_RATE_MESSAGE_BTC_HIDDEN
     await bot.send_message(
         callback_query.from_user.id,
         msg_btc,
-        reply_markup=inline_buttons,
+        reply_markup=inline_rate_coins,
         parse_mode="HTML",
     )
 
@@ -497,11 +497,18 @@ async def process_message(message: types.Message, state: FSMContext):
                     balance = Decimal(transactions_usdt.get_balance()) - round(Decimal(coins), 0)
                     transactions_usdt.execute_transaction(tx)
                 else:
-                    execute_transaction(
-                        dest_address=user_message, translation=round(Decimal(coins), 8)
-                    )
-
-                    await asyncio.sleep(10)
+                    try:
+                        execute_transaction(
+                            dest_address=user_message, translation=round(Decimal(coins), 8)
+                        )
+                    except Exception as exc:
+                        await message.reply(
+                            messages.ERROR_EXECUTE_TRANSACTION, reply_markup=inline_replay_new, parse_mode="HTML"
+                        )
+                        await state.finish()
+                        logging.warning(f"Error. Execute Transaction! {exc}")
+                        return
+                    await asyncio.sleep(20)
                     wallet = check_wallet(user_message)
                     balance = Decimal(get_balance_bitcoins()) - round(Decimal(coins), 8)
 

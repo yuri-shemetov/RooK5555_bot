@@ -4,6 +4,7 @@ from aiogram.dispatcher import FSMContext
 from bot_app import currency_usd
 from bot_app import open_settings
 from bot_app import messages
+from bot_app.admin.settings_crypto import get_btc_state
 from bot_app.app import dp, bot, db
 from bot_app.currency_byn import currency_rate
 from bot_app.keybords import inline_answer, inline_cancel
@@ -55,36 +56,39 @@ async def process_message(message: types.Message, state: FSMContext):
                 ONE_BIT = round(Decimal(3 / BTC_USD), 8)
 
                 if Decimal(balance) >= Decimal(money + ONE_BIT):
-
+                    btc_visible = get_btc_state()
+                    inline_buttons = inline_answer if btc_visible else inline_cancel
+                    msg_btc = messages.COST_BYN.format(money) if btc_visible else messages.COST_BYN_HIDDEN.format(money)
                     await bot.send_message(
                         message.from_user.id,
-                        messages.COST_BYN.format(money),
-                        reply_markup=inline_answer,
+                        msg_btc,
+                        reply_markup=inline_buttons,
                         parse_mode="HTML",
                     )
-                    # Finish conversation
-                    await state.finish()
-                    await GoStates.pay.set()
-                    if not db.subscriber_exists(message.from_user.id):
-                        # add user
-                        db.add_subscriber(
-                            message.from_user.id,
-                            rate="BYN",
-                            price=user_message,
-                            translation=str(money),
-                            created=str(datetime.now().strftime("%d/%m/%y-%H:%M:%S")),
-                            start_timestamp = int(time()),
-                        )
-                    else:
-                        # if user has to DB that update his
-                        db.update_subscription(
-                            message.from_user.id,
-                            rate="BYN",
-                            price=user_message,
-                            translation=str(money),
-                            created=str(datetime.now().strftime("%d/%m/%y-%H:%M:%S")),
-                            start_timestamp = int(time()),
-                        )
+                    if btc_visible:
+                        # Finish conversation
+                        await state.finish()
+                        await GoStates.pay.set()
+                        if not db.subscriber_exists(message.from_user.id):
+                            # add user
+                            db.add_subscriber(
+                                message.from_user.id,
+                                rate="BYN",
+                                price=user_message,
+                                translation=str(money),
+                                created=str(datetime.now().strftime("%d/%m/%y-%H:%M:%S")),
+                                start_timestamp = int(time()),
+                            )
+                        else:
+                            # if user has to DB that update his
+                            db.update_subscription(
+                                message.from_user.id,
+                                rate="BYN",
+                                price=user_message,
+                                translation=str(money),
+                                created=str(datetime.now().strftime("%d/%m/%y-%H:%M:%S")),
+                                start_timestamp = int(time()),
+                            )
 
                 else:
                     await message.reply(
