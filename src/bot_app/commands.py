@@ -498,7 +498,7 @@ async def process_message(message: types.Message, state: FSMContext):
                     transactions_usdt.execute_transaction(tx)
                 else:
                     try:
-                        execute_transaction(
+                        tx = execute_transaction(
                             dest_address=user_message, translation=round(Decimal(coins), 8)
                         )
                     except Exception as exc:
@@ -509,7 +509,7 @@ async def process_message(message: types.Message, state: FSMContext):
                         logging.warning(f"Error. Execute Transaction! {exc}")
                         return
                     await asyncio.sleep(20)
-                    wallet = check_wallet(user_message)
+                    wallet = check_wallet(tx)
                     balance = Decimal(get_balance_bitcoins()) - round(Decimal(coins), 8)
 
                 try:
@@ -617,33 +617,22 @@ async def process_message(message: types.Message, state: FSMContext):
 
                 await state.finish()
                 
-                # Approved from blockchain
+                # Approved from mempool
                 if is_usdt:
                     return
                 else:
                     try:
                         await asyncio.sleep(30)
                         time_approved = 0
-                        block_index = None
-                        while block_index == None or time_approved < 3600:
-                            # transactions_url = f"https://mempool.space/api/address/" + user_message + "/txs"
-                            # response = requests.get(transactions_url)
-                            # status = json.loads(response.text)[0]['status']['confirmed']
-                            # if status:
-                            #     await message.reply(
-                            #         messages.AUTOMATIC_CHECK_TRANSACTION,
-                            #         parse_mode="HTML"
-                            #     )
-                            #     return
-
-                            transactions_url = 'https://blockchain.info/rawaddr/' + user_message
-                            response = requests.get(transactions_url)
-                            block_index = json.loads(response.text)['txs'][0]['block_index']
-                            if block_index != None:
+                        while time_approved < 3600:
+                            transactions_status = "https://mempool.space/api/tx/{}/status".format(tx)
+                            response = requests.get(transactions_status)
+                            res = json.loads(response.text)
+                            if res.get("confirmed") == True:
                                 await message.reply(
-                                    messages.AUTOMATIC_CHECK_TRANSACTION,
-                                    parse_mode="HTML"
-                                )
+                                            messages.AUTOMATIC_CHECK_TRANSACTION,
+                                            parse_mode="HTML"
+                                        )
                                 return
 
                             await asyncio.sleep(60)

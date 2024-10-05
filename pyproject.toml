@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "rook5555-bot"
+version = "0.1.0"
+description = ""
+authors = ["Yuri <yuri-sh@tut.by>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "^2.32.3"
+yadisk = "^3.1.0"
+bitcoinlib = "^0.6.15"
+tronpy = "^0.5.0"
+aiogram = "2.23.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

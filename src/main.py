@@ -1,4 +1,4 @@
-from aiogram import executor
+from aiogram.utils import executor
 from bot_app.app import dp
 
 if __name__ == "__main__":
