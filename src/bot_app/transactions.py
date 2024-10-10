@@ -14,11 +14,12 @@ def execute_transaction(dest_address, translation):
     source_k = Key(private_key)
     fee = get_fees()
     if fee < 15:
-        source_k.send([(dest_address, translation, "btc")], fee = 15)
+        tx =  source_k.send([(dest_address, translation, "btc")], fee = 15)
     elif fee > 300:
-        source_k.send([(dest_address, translation, "btc")], fee = 300)
+        tx = source_k.send([(dest_address, translation, "btc")], fee = 300)
     else:
-        source_k.send([(dest_address, translation, "btc")])
+        tx = source_k.send([(dest_address, translation, "btc")])
+    return tx
 
 
 def get_balance_bitcoins():
