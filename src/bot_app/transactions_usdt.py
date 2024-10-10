@@ -1,7 +1,6 @@
 import logging
 import requests
 
-from decimal import Decimal
 from tronpy import Tron
 from tronpy.keys import PrivateKey
 from tronpy.providers import HTTPProvider
@@ -65,6 +64,6 @@ def get_balance():
                 usdt_balance = round(float(token['balance']) * pow(10, -token['tokenDecimal']), 6)
                 break
 
-        if usdt_balance is not None:
+        if usdt_balance:
             return usdt_balance
         return 0

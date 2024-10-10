@@ -502,12 +502,23 @@ async def process_message(message: types.Message, state: FSMContext):
                             dest_address=user_message, translation=round(Decimal(coins), 8)
                         )
                     except Exception as exc:
+                        logging.warning(f"Error. Execute Transaction BTC! {exc}")
+                        await bot.send_message(
+                            ADMIN,
+                            f"❌ Внимание! Бот не смог автоматически перевести  \
+                                \{round(Decimal(coins), int_for_rounnd)} {rate} пользователю \
+                                \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
+                                \nНеобходима ручная отправка на адрес {user_message}! \
+                                \nПользователю придет сообщение об успешной отправке!",
+                            parse_mode="HTML",
+                        )
+                        url_for_view = f"https://www.blockchain.com/ru/btc/address/{wallet}"
                         await message.reply(
-                            messages.ERROR_EXECUTE_TRANSACTION, reply_markup=inline_replay_new, parse_mode="HTML"
+                            messages.ERROR_EXECUTE_TRANSACTION.format(url_for_view), reply_markup=inline_replay_new, parse_mode="HTML"
                         )
                         await state.finish()
-                        logging.warning(f"Error. Execute Transaction! {exc}")
                         return
+                    
                     await asyncio.sleep(20)
                     wallet = check_wallet(tx)
                     balance = Decimal(get_balance_bitcoins()) - round(Decimal(coins), 8)
