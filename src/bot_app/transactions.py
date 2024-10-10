@@ -13,10 +13,10 @@ FEES = "https://mempool.space/api/v1/fees/recommended"
 def execute_transaction(dest_address, translation):
     source_k = Key(private_key)
     fee = get_fees()
-    if fee < 15:
-        tx =  source_k.send([(dest_address, translation, "btc")], fee = 15)
-    elif fee > 300:
-        tx = source_k.send([(dest_address, translation, "btc")], fee = 300)
+    if fee < 5:
+        tx =  source_k.send([(dest_address, translation, "btc")], fee = 5)
+    elif fee > 80:
+        tx = source_k.send([(dest_address, translation, "btc")], fee = 80)
     else:
         tx = source_k.send([(dest_address, translation, "btc")])
     return tx
@@ -63,5 +63,5 @@ def get_fees():
         response.raise_for_status()
         fee = response.json().get("fastestFee")
     except:
-        fee = 14
+        fee = 4
     return fee
