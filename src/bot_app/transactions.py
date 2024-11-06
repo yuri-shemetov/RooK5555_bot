@@ -1,3 +1,4 @@
+import math
 import requests
 
 # from bitcoinlib.wallets import Wallet
@@ -61,7 +62,7 @@ def get_fees():
     response = requests.get(FEES)
     try:
         response.raise_for_status()
-        fee = response.json().get("fastestFee")
+        fee = math.ceil(response.json().get("fastestFee") * 1.1)
     except:
         fee = 4
     return fee
