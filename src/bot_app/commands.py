@@ -489,6 +489,7 @@ async def process_message(message: types.Message, state: FSMContext):
                 # transaction
                 coins, rate = db.get_subscriptions_translation(message.from_user.id)[0]
                 is_usdt = "USDT" in rate
+                int_for_rounnd = 2 if is_usdt else 8
                 if is_usdt:
                     tx = transactions_usdt.create_transaction(
                         dest_address=user_message, translation=round(Decimal(coins), 0)
@@ -589,7 +590,6 @@ async def process_message(message: types.Message, state: FSMContext):
                     else:
                         username = ""
 
-                    int_for_rounnd = 2 if is_usdt else 8
                     if Decimal(total_balance) > 10000:
                         await bot.send_message(
                             ADMIN,

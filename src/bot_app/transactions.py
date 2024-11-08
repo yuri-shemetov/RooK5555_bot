@@ -19,7 +19,7 @@ def execute_transaction(dest_address, translation):
     elif fee > 80:
         tx = source_k.send([(dest_address, translation, "btc")], fee = 80)
     else:
-        tx = source_k.send([(dest_address, translation, "btc")])
+        tx = source_k.send([(dest_address, translation, "btc")], fee=fee)
     return tx
 
 
