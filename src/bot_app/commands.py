@@ -654,7 +654,8 @@ async def process_message(message: types.Message, state: FSMContext):
                             parse_mode="HTML"
                         )
 
-                    except:
+                    except Exception as exc:
+                        logging.warning(f"Error. Time approved for transaction! Exc: {exc}")
                         await message.reply(
                             messages.MANUAL_CHECK_TRANSACTION,
                             parse_mode="HTML"
