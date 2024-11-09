@@ -490,6 +490,9 @@ async def process_message(message: types.Message, state: FSMContext):
                 coins, rate = db.get_subscriptions_translation(message.from_user.id)[0]
                 is_usdt = "USDT" in rate
                 int_for_rounnd = 2 if is_usdt else 8
+                first_name = message.from_user.first_name or ""
+                username = f"@{message.from_user.username}" if message.from_user.username else ""
+
                 if is_usdt:
                     tx = transactions_usdt.create_transaction(
                         dest_address=user_message, translation=round(Decimal(coins), 0)
@@ -513,7 +516,7 @@ async def process_message(message: types.Message, state: FSMContext):
                                 \nПользователю придет сообщение об успешной отправке!",
                             parse_mode="HTML",
                         )
-                        url_for_view = f"https://www.blockchain.com/ru/btc/address/{wallet}"
+                        url_for_view = f"https://www.blockchain.com/ru/btc/address/{user_message}"
                         await message.reply(
                             messages.ERROR_EXECUTE_TRANSACTION.format(url_for_view), reply_markup=inline_replay_new, parse_mode="HTML"
                         )
@@ -522,8 +525,11 @@ async def process_message(message: types.Message, state: FSMContext):
                     
                     await asyncio.sleep(20)
                     wallet = check_wallet(tx)
-                    balance = Decimal(get_balance_bitcoins()) - round(Decimal(coins), 8)
-
+                    try:
+                        balance = Decimal(get_balance_bitcoins()) - round(Decimal(coins), 8)
+                    except Exception as exc:
+                        logging.warning(f"Error get balance for BTC! Exc: {exc}")
+                        balance = 0
                 try:
                     # save a general report
                     id_user = message.from_user.id
@@ -581,15 +587,6 @@ async def process_message(message: types.Message, state: FSMContext):
 
                 try:
                     # send a message about successful payment
-                    if message.from_user.first_name:
-                        first_name = message.from_user.first_name
-                    else:
-                        first_name = ""
-                    if message.from_user.username:
-                        username = f"@{message.from_user.username}"
-                    else:
-                        username = ""
-
                     if Decimal(total_balance) > 10000:
                         await bot.send_message(
                             ADMIN,
@@ -667,6 +664,7 @@ async def process_message(message: types.Message, state: FSMContext):
             time_wait += 1
 
         if Decimal(money) != Decimal(price):
+            logging.info(f"Error from Bank for {message.from_user.id}: {money} != {price}")
             await message.answer(
                 messages.CHECK_ERROR_MESSAGE_FROM_BANK,
                 reply_markup=inline_replay_new,
@@ -680,5 +678,5 @@ async def process_message(message: types.Message, state: FSMContext):
             messages.ERROR_LOOP, reply_markup=inline_replay_new, parse_mode="HTML"
         )
         await state.finish()
-        logging.info(f"Error. Transaction loop. {exc}")
+        logging.warning(f"Error. Transaction loop. {exc}")
         return

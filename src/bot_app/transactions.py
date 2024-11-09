@@ -4,7 +4,7 @@ import requests
 # from bitcoinlib.wallets import Wallet
 # from bot_app.my_local_settings import passphrase, wallet_name
 from bit import PrivateKey as Key
-from bot_app.my_local_settings import private_key
+from bot_app.my_local_settings import private_key, btc_address
 
 
 # FEES = "https://api.blockchain.info/mempool/fees"
@@ -24,6 +24,9 @@ def execute_transaction(dest_address, translation):
 
 
 def get_balance_bitcoins():
+    response = requests.get(f"https://blockchain.info/q/addressbalance/{btc_address}")
+    if response.status_code == 200:
+        return int(response.text) * 0.000_000_01
     source_k = Key(private_key)
     return source_k.get_balance("btc")
 
