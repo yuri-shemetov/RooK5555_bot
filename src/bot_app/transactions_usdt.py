@@ -1,6 +1,7 @@
 import logging
 import requests
 
+import tronpy
 from tronpy import Tron
 from tronpy.keys import PrivateKey
 from tronpy.providers import HTTPProvider
@@ -50,20 +51,37 @@ def execute_transaction(tx):
 
 
 def get_balance():
-    url = f"https://apilist.tronscan.org/api/account?address={owner_address}&includeToken=true"
-    headers = {"accept": "application/json"}
-    response = requests.get(url, headers=headers)
-    data = response.json()
+    try:
+        url = f"https://apilist.tronscan.org/api/account?address={owner_address}&includeToken=true"
+        headers = {"accept": "application/json"}
+        response = requests.get(url, headers=headers)
+        data = response.json()
 
-    if 'error' in data:
-        logging.info(f"Error: {data['error']}")
-    else:
-        usdt_balance = None
-        for token in data['trc20token_balances']:
-            if token['tokenName'] == 'Tether USD':
-                usdt_balance = round(float(token['balance']) * pow(10, -token['tokenDecimal']), 6)
-                break
+        if 'error' in data:
+            logging.info(f"Error. Get Balance USDT. {data['error']}")
+            provider = HTTPProvider(api_key=[api_key_1, api_key_2, api_key_3]) 
+            provider.sess.trust_env = False
+            client = Tron(provider)
 
-        if usdt_balance:
+            contract_usdt = client.get_contract(contract_address)  # usdt
+            usdt_balance = round(contract_usdt.functions.balanceOf(owner_address)/ tronpy.TRX, 4)
             return usdt_balance
-        return 0
+        else:
+            usdt_balance = None
+            for token in data['trc20token_balances']:
+                if token['tokenName'] == 'Tether USD':
+                    usdt_balance = round(float(token['balance']) * pow(10, -token['tokenDecimal']), 6)
+                    break
+
+            if usdt_balance:
+                return usdt_balance
+            return 0
+    except Exception as exc:
+        logging.warning(f"Error. Get Balance USDT. {exc}")
+        provider = HTTPProvider(api_key=[api_key_1, api_key_2, api_key_3]) 
+        provider.sess.trust_env = False
+        client = Tron(provider)
+
+        contract_usdt = client.get_contract(contract_address)  # usdt
+        usdt_balance = round(contract_usdt.functions.balanceOf(owner_address)/ tronpy.TRX, 4)
+        return usdt_balance

@@ -40,7 +40,7 @@ CONTENT_TYPES = [
 
 def get_requisiters():
     try:
-        is_only_day = True if 8 <= datetime.now().hour < 21 else False
+        is_only_day = True if 8 <= datetime.now().hour < 19 else False
         requisiters_and_amount = db_bank.get_full_data(is_only_day)
         result = min(requisiters_and_amount, key = lambda item: item[2])
         requisiters, name_bank = result[0], result[3]
@@ -66,7 +66,7 @@ async def button_click_call_back(
 
     now_requisiters = get_full_data()
     for index, item in enumerate(now_requisiters, start=1):
-        is_only_day = "08.00-21.00" if item[1] else "Круглосуточно"
+        is_only_day = "08.00-19.00" if item[1] else "Круглосуточно"
         await bot.send_message(
             callback_query.from_user.id,
             messages.TEXT_FOR_REQUISITERS_ONE_BANK.format(index, item[3], item[2], is_only_day, item[0]),
