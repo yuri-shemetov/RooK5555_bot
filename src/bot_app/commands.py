@@ -3,7 +3,7 @@ import json
 import logging
 import requests
 
-from aiogram import types
+from aiogram import types, utils
 from aiogram.dispatcher import FSMContext
 from bot_app import messages
 from bot_app.admin.choice_requisites import get_requisiters
@@ -24,6 +24,8 @@ from bot_app.keybords import (
     inline_answer_to_main,
     inline_apply,
     inline_cancel,
+    inline_choice_btc_between,
+    inline_choice_usdt_between,
     inline_lets_go,
     inline_new,
     inline_pay,
@@ -90,60 +92,63 @@ async def send_welcome(message: types.Message):
 # Terms
 @dp.callback_query_handler(lambda c: c.data == "replay_new", state="*")
 async def send_terms(callback_query: types.CallbackQuery):
-    await callback_query.answer()
+    try:
+        await callback_query.answer()
 
-    ban_users_list = [int(x) for x in get_ban_users().split()]
-    on_or_off = get_on_or_off()
+        ban_users_list = [int(x) for x in get_ban_users().split()]
+        on_or_off = get_on_or_off()
 
-    # Ban user
-    if callback_query.from_user.id in ban_users_list:
-        await bot.send_message(callback_query.from_user.id, messages.BLACK_LIST)
-        await GoStates.ban.set()
-        return
+        # Ban user
+        if callback_query.from_user.id in ban_users_list:
+            await bot.send_message(callback_query.from_user.id, messages.BLACK_LIST)
+            await GoStates.ban.set()
+            return
 
-    # Admin user and button "turn_off"
-    if callback_query.from_user.id == ADMIN and on_or_off == "on":
-        total_balance = db_bank.get_total()[0]
-        date_time = str(datetime.now().strftime("%H:%M:%S %d.%m.%y"))
-        btc_msg = messages.WELCOME_ADMIN_TURN_ON_BTC if get_btc_state() else messages.WELCOME_ADMIN_TURN_OFF_BTC
-        await bot.send_message(
-            callback_query.from_user.id,
-            f"{messages.WELCOME_ADMIN_TURN_ON}{btc_msg}\
-                \n{date_time}\nОбщая сумма по всем реквизитам составляет: <b>{total_balance} BYN</b>",
-            reply_markup=inline_admin_and_button_turn_off,
-            parse_mode="html",
-        )
-        await GoStates.setting.set()
+        # Admin user and button "turn_off"
+        if callback_query.from_user.id == ADMIN and on_or_off == "on":
+            total_balance = db_bank.get_total()[0]
+            date_time = str(datetime.now().strftime("%H:%M:%S %d.%m.%y"))
+            btc_msg = messages.WELCOME_ADMIN_TURN_ON_BTC if get_btc_state() else messages.WELCOME_ADMIN_TURN_OFF_BTC
+            await bot.send_message(
+                callback_query.from_user.id,
+                f"{messages.WELCOME_ADMIN_TURN_ON}{btc_msg}\
+                    \n{date_time}\nОбщая сумма по всем реквизитам составляет: <b>{total_balance} BYN</b>",
+                reply_markup=inline_admin_and_button_turn_off,
+                parse_mode="html",
+            )
+            await GoStates.setting.set()
 
-    # Admin user and button "turn_on"
-    elif callback_query.from_user.id == ADMIN and on_or_off == "off":
-        with open("bot_app/admin/settings/byn_balance.txt", "r") as file_byn:
-            total_balance = file_byn.read()
-        date_time = str(datetime.now().strftime("%H:%M:%S %d.%m.%y"))
-        btc_msg = messages.WELCOME_ADMIN_TURN_ON_BTC if get_btc_state() else messages.WELCOME_ADMIN_TURN_OFF_BTC
-        await bot.send_message(
-            callback_query.from_user.id,
-            f"{messages.WELCOME_ADMIN_TURN_OFF}{btc_msg}\
-                \n{date_time} - Общая сумма на текущем реквизите составляет: {total_balance} BYN",
-            reply_markup=inline_admin_and_button_turn_on,
-        )
-        await GoStates.setting.set()
+        # Admin user and button "turn_on"
+        elif callback_query.from_user.id == ADMIN and on_or_off == "off":
+            with open("bot_app/admin/settings/byn_balance.txt", "r") as file_byn:
+                total_balance = file_byn.read()
+            date_time = str(datetime.now().strftime("%H:%M:%S %d.%m.%y"))
+            btc_msg = messages.WELCOME_ADMIN_TURN_ON_BTC if get_btc_state() else messages.WELCOME_ADMIN_TURN_OFF_BTC
+            await bot.send_message(
+                callback_query.from_user.id,
+                f"{messages.WELCOME_ADMIN_TURN_OFF}{btc_msg}\
+                    \n{date_time} - Общая сумма на текущем реквизите составляет: {total_balance} BYN",
+                reply_markup=inline_admin_and_button_turn_on,
+            )
+            await GoStates.setting.set()
 
-    # Turn on
-    elif on_or_off == "on":
-        await bot.send_message(
-            callback_query.from_user.id, messages.TERMS_MESSAGE, reply_markup=inline_new
-        )
-        await GoStates.everybody_users.set()
+        # Turn on
+        elif on_or_off == "on":
+            await bot.send_message(
+                callback_query.from_user.id, messages.TERMS_MESSAGE, reply_markup=inline_new
+            )
+            await GoStates.everybody_users.set()
 
-    # Turn off
-    elif on_or_off == "off":
-        await bot.send_message(
-            callback_query.from_user.id,
-            messages.BOT_TURN_OFF,
-            reply_markup=inline_cancel,
-        )
-        await GoStates.turn_off.set()
+        # Turn off
+        elif on_or_off == "off":
+            await bot.send_message(
+                callback_query.from_user.id,
+                messages.BOT_TURN_OFF,
+                reply_markup=inline_cancel,
+            )
+            await GoStates.turn_off.set()
+    except utils.exceptions.InvalidQueryID:
+        logging.info(f"def send_terms / Invalid query ID or query has expired.")
 
 
 # Cancel
@@ -162,7 +167,7 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
 async def button_click_call_back(callback_query: types.CallbackQuery):
 
     await callback_query.answer()
-    await GoStates.everybody_users_coin.set()
+    await GoStates.everybody_users_choice.set()
     btc_visible = get_btc_state()
     # inline_buttons = inline_rate_coins if btc_visible else inline_rate_coins_btc_hidden
     msg_btc = messages.CHOISE_RATE_MESSAGE if btc_visible else messages.CHOISE_RATE_MESSAGE_BTC_HIDDEN
@@ -173,8 +178,22 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
         parse_mode="HTML",
     )
 
-# New application - BTC
-@dp.callback_query_handler(lambda c: c.data == "btc_coin", state=GoStates.everybody_users_coin)
+
+# New application - BTC / Choosing between BYN or USDT
+@dp.callback_query_handler(lambda c: c.data == "btc_coin", state=GoStates.everybody_users_choice)
+async def button_click_call_back(callback_query: types.CallbackQuery):
+
+    await callback_query.answer()
+    await GoStates.everybody_users_coin.set()
+    await bot.send_message(
+        callback_query.from_user.id,
+        messages.CHOICE_BTC_BETWEEN,
+        reply_markup=inline_choice_btc_between,
+    )
+
+
+# New application - Buy BTC for BYN
+@dp.callback_query_handler(lambda c: c.data == "btc_coin_for_byn", state=GoStates.everybody_users_coin)
 async def button_click_call_back(callback_query: types.CallbackQuery):
 
     await callback_query.answer()
@@ -185,8 +204,37 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
         reply_markup=inline_rate_btc,
     )
 
-# New application - USDT
-@dp.callback_query_handler(lambda c: c.data == "usdt_coin", state=GoStates.everybody_users_coin)
+
+# New application - Buy BTC for USDT
+@dp.callback_query_handler(lambda c: c.data == "btc_coin_for_usdt", state=GoStates.everybody_users_coin)
+async def choice_rate_btc_coin_for_usdt(callback_query: types.CallbackQuery):
+    try:
+        await callback_query.answer()
+        await GoStates.go.set() # FIX ME
+        await bot.send_message(
+            callback_query.from_user.id,
+            messages.CHOISE_RATE_MESSAG_COIN,
+            # reply_markup=inline_rate_btc_for_usdt,  # FIX ME
+        )
+    except utils.exceptions.InvalidQueryID:
+        logging.info(f"def choice_rate_btc_coin_for_usdt / Invalid query ID or query has expired.")
+
+
+# New application - USDT / Choosing between BYN or BTC
+@dp.callback_query_handler(lambda c: c.data == "usdt_coin", state=GoStates.everybody_users_choice)
+async def button_click_call_back(callback_query: types.CallbackQuery):
+
+    await callback_query.answer()
+    await GoStates.everybody_users_coin.set()
+    await bot.send_message(
+        callback_query.from_user.id,
+        messages.CHOICE_USDT_BETWEEN,
+        reply_markup=inline_choice_usdt_between,
+    )
+
+
+# New application - Buy USDT for BYN
+@dp.callback_query_handler(lambda c: c.data == "usdt_coin_for_byn", state=GoStates.everybody_users_coin)
 async def button_click_call_back(callback_query: types.CallbackQuery):
 
     await callback_query.answer()
@@ -479,6 +527,7 @@ async def process_message(message: types.Message, state: FSMContext):
         except Exception as exc:
             price = db.get_subscriptions_all_price(message.from_user.id)[0][0]
         time_wait = 0
+        errors = False
 
         while time_wait != 60:  # 10 minutes
 
@@ -506,29 +555,36 @@ async def process_message(message: types.Message, state: FSMContext):
                             dest_address=user_message, translation=round(Decimal(coins), 8)
                         )
                     except Exception as exc:
-                        logging.warning(f"Error. Execute Transaction BTC! {exc}")
-                        await bot.send_message(
-                            ADMIN,
-                            f"❌ Внимание! Бот не смог автоматически перевести  \
-                                \{round(Decimal(coins), int_for_rounnd)} {rate} пользователю \
-                                \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
-                                \nНеобходима ручная отправка на адрес {user_message}! \
-                                \nПользователю придет сообщение об успешной отправке!",
-                            parse_mode="HTML",
-                        )
-                        url_for_view = f"https://www.blockchain.com/ru/btc/address/{user_message}"
-                        await message.reply(
-                            messages.ERROR_EXECUTE_TRANSACTION.format(url_for_view), reply_markup=inline_replay_new, parse_mode="HTML"
-                        )
-                        await state.finish()
-                        return
+                        logging.warning(f"Error / Attempt 1 / Execute Transaction BTC / Exc: {exc}")
+                        await asyncio.sleep(15)
+                        try:
+                            tx = execute_transaction(
+                                dest_address=user_message, translation=round(Decimal(coins), 8)
+                            )
+                        except Exception as exc:
+                            logging.warning(f"Error / Attempt 2 / Execute Transaction BTC / Exc: {exc}")
+                            await bot.send_message(
+                                ADMIN,
+                                f"❌ Внимание! Бот не смог автоматически перевести (было 2 попытки)  \
+                                    \{round(Decimal(coins), int_for_rounnd)} {rate} пользователю \
+                                    \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
+                                    \nНеобходима ручная отправка на адрес {user_message}! \
+                                    \nПользователю придет сообщение об успешной отправке!",
+                                parse_mode="HTML",
+                            )
+                            url_for_view = f"https://www.blockchain.com/ru/btc/address/{user_message}"
+                            await message.reply(
+                                messages.ERROR_EXECUTE_TRANSACTION.format(url_for_view), reply_markup=inline_replay_new, parse_mode="HTML"
+                            )
+                            await state.finish()
+                            errors, tx = True, "error"
                     
                     await asyncio.sleep(20)
                     wallet = check_wallet(tx)
                     try:
                         balance = Decimal(get_balance_bitcoins()) - round(Decimal(coins), 8)
                     except Exception as exc:
-                        logging.warning(f"Error get balance for BTC! Exc: {exc}")
+                        logging.warning(f"Error / Get balance / BTC / Exc: {exc}")
                         balance = 0
                 try:
                     # save a general report
@@ -544,21 +600,23 @@ async def process_message(message: types.Message, state: FSMContext):
                     if message.from_user.username:
                         username = f"@{message.from_user.username}"
                     save_to_yadisk_general_report(hash_address, id_user, username, name_bank)
-                except:
+                except Exception as exc:
+                    logging.warning(f"Error / Save a general report / BTC / Exc: {exc}")
                     await bot.send_message(
                         ADMIN,
                         f"⚠️ Сохранить новый отчет не удалось",
                         parse_mode="HTML",
                     )
 
-                # show a message about successful transaction and a wallet
-                with open("animation/successful.jpeg", "rb") as photo:
-                    await bot.send_photo(
-                        message.from_user.id,
-                        photo=photo,
-                        caption=messages.GET_APLICATION + wallet,
-                        reply_markup=inline_replay_new,
-                    )
+                if not errors:
+                    # show a message about successful transaction and a wallet
+                    with open("animation/successful.jpeg", "rb") as photo:
+                        await bot.send_photo(
+                            message.from_user.id,
+                            photo=photo,
+                            caption=messages.GET_APLICATION + wallet,
+                            reply_markup=inline_replay_new,
+                        )
                 
                 try:
                     # Total amount for loyalty program
@@ -571,7 +629,7 @@ async def process_message(message: types.Message, state: FSMContext):
 
                 except Exception as exc:
                     await message.reply(messages.ERROR_TOTAL_AMOUNT_LOYATY.format(exc), parse_mode="HTML")
-                    logging.info(f"Error. Total amount for loyalty program. {exc}")
+                    logging.warning(f"Error / Total amount for loyalty program / Exc: {exc}")
                 
                 try:
                     # Calculate the balance
@@ -580,35 +638,36 @@ async def process_message(message: types.Message, state: FSMContext):
                     total_balance = Decimal(balance_from_bank) + Decimal(user_balance)
                     db_bank.update_amount_from_bank(int(total_balance), name_bank)
 
-                except:
+                except Exception as exc:
                     await message.reply(messages.ERROR_COUNT_BALANCE, parse_mode="HTML")
                     await state.finish()
-                    return
+                    logging.warning(f"Error / Calculate the balance for Bank / Exc: {exc}")
 
-                try:
-                    # send a message about successful payment
-                    if Decimal(total_balance) > 10000:
-                        await bot.send_message(
-                            ADMIN,
-                            f"❗️❗️❗️ Для банка {name_bank} достигнут максимальный баланс счетчика - 10K.\
-                                \n✅️ Бот перевел {round(Decimal(coins), int_for_rounnd)} {rate} пользователю \
-                                \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
-                                \nПримерно осталось: {round(Decimal(balance), int_for_rounnd)} {rate}",
-                            parse_mode="HTML",
-                        )
+                if not errors:
+                    try:
+                        # send a message about successful payment
+                        if Decimal(total_balance) > 10000:
+                            await bot.send_message(
+                                ADMIN,
+                                f"❗️❗️❗️ Для банка {name_bank} достигнут максимальный баланс счетчика - 10K.\
+                                    \n✅️ Бот перевел {round(Decimal(coins), int_for_rounnd)} {rate} пользователю \
+                                    \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
+                                    \nПримерно осталось: {round(Decimal(balance), int_for_rounnd)} {rate}",
+                                parse_mode="HTML",
+                            )
 
-                    else:
-                        await bot.send_message(
-                            ADMIN,
-                            f"✅️ Бот перевел {round(Decimal(coins), int_for_rounnd)} {rate} пользователю \
-                                \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
-                                \nПримерно осталось: {round(Decimal(balance), int_for_rounnd)} {rate}",
-                            parse_mode="HTML",
-                        )
-                except:
-                    await message.reply(messages.ERROR_NOTIFICATION, parse_mode="HTML")
-                    await state.finish()
-                    return
+                        else:
+                            await bot.send_message(
+                                ADMIN,
+                                f"✅️ Бот перевел {round(Decimal(coins), int_for_rounnd)} {rate} пользователю \
+                                    \nID № {message.from_user.id}, \nНик: {username} \nИмя: {first_name}. \
+                                    \nПримерно осталось: {round(Decimal(balance), int_for_rounnd)} {rate}",
+                                parse_mode="HTML",
+                            )
+                    except:
+                        await message.reply(messages.ERROR_NOTIFICATION, parse_mode="HTML")
+                        await state.finish()
+                        return
 
 
                 # delete old media files
@@ -626,7 +685,7 @@ async def process_message(message: types.Message, state: FSMContext):
                 await state.finish()
                 
                 # Approved from mempool
-                if is_usdt:
+                if is_usdt or errors:
                     return
                 else:
                     try:
@@ -678,5 +737,5 @@ async def process_message(message: types.Message, state: FSMContext):
             messages.ERROR_LOOP, reply_markup=inline_replay_new, parse_mode="HTML"
         )
         await state.finish()
-        logging.warning(f"Error. Transaction loop. {exc}")
+        logging.warning(f"Error / Transaction loop / {exc}")
         return

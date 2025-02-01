@@ -16,12 +16,20 @@ inline_button_applications = InlineKeyboardButton("Списки", callback_data=
 inline_button_apply = InlineKeyboardButton("Запросить доступ", callback_data="apply")
 inline_button_balance_btc = InlineKeyboardButton("💰 Баланс BTC", callback_data="balance")
 inline_button_black_list = InlineKeyboardButton("Черный список", callback_data="black_list")
-inline_button_btc = InlineKeyboardButton("BTC", callback_data="btc")
+
 inline_button_btc_coin = InlineKeyboardButton("BTC", callback_data="btc_coin")
+inline_button_btc_coin_for_byn = InlineKeyboardButton("BTC за BYN", callback_data="btc_coin_for_byn")
+inline_button_btc_coin_for_usdt = InlineKeyboardButton("BTC за USDT(trc20)", callback_data="btc_coin_for_usdt")
+inline_button_btc = InlineKeyboardButton("BTC", callback_data="btc")
 inline_button_byn = InlineKeyboardButton("BYN", callback_data="byn")
-inline_button_usdt = InlineKeyboardButton("USDT (trc20)", callback_data="usdt")
+
+
 inline_button_usdt_coin = InlineKeyboardButton("USDT (trc20)", callback_data="usdt_coin")
+inline_button_usdt_coin_for_byn = InlineKeyboardButton("USDT за BYN", callback_data="usdt_coin_for_byn")
+inline_button_usdt_coin_for_usdt = InlineKeyboardButton("USDT за BTC", callback_data="usdt_coin_for_btc")
+inline_button_usdt = InlineKeyboardButton("USDT (trc20)", callback_data="usdt")
 inline_button_byn_usdt = InlineKeyboardButton("BYN", callback_data="byn_usdt")
+
 inline_button_cancel = InlineKeyboardButton("Отменить", callback_data="cancel")
 inline_button_сheck_users = InlineKeyboardButton("Проверка Users", callback_data="check_users")
 inline_button_continue = InlineKeyboardButton("Продолжить", callback_data="OK")
@@ -66,6 +74,8 @@ inline_answer_to_main = InlineKeyboardMarkup()
 inline_apply = InlineKeyboardMarkup(row_width=1)
 inline_cancel = InlineKeyboardMarkup()
 inline_continue = InlineKeyboardMarkup()
+inline_choice_btc_between = InlineKeyboardMarkup()
+inline_choice_usdt_between = InlineKeyboardMarkup()
 inline_fees = InlineKeyboardMarkup()
 inline_lets_go = InlineKeyboardMarkup()
 inline_new = InlineKeyboardMarkup(row_width=1)
@@ -136,9 +146,17 @@ inline_rate_coins.add(
 inline_rate_coins_btc_hidden.add(
     inline_button_usdt_coin,
 )
+inline_choice_btc_between.add(
+    inline_button_btc_coin_for_byn,
+    # inline_button_btc_coin_for_usdt,
+)
 inline_rate_btc.add(
     inline_button_btc,
     inline_button_byn,
+)
+inline_choice_usdt_between.add(
+    inline_button_usdt_coin_for_byn,
+    # inline_button_usdt_coin_for_usdt,
 )
 inline_rate_usdt.add(
     inline_button_usdt,
