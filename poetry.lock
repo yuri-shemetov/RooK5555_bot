@@ -235,25 +235,6 @@ files = [
 tests = ["PyHamcrest (>=2.0.2)", "mypy", "pytest (>=4.6)", "pytest-benchmark", "pytest-cov", "pytest-flake8"]
 
 [[package]]
-name = "bit"
-version = "0.8.0"
-description = "Bitcoin made easy."
-optional = false
-python-versions = "*"
-files = [
-    {file = "bit-0.8.0-py3-none-any.whl", hash = "sha256:059b4f8905359576ecb09c7bc9e5e266532b820179c625e39a501a21867f2c83"},
-    {file = "bit-0.8.0.tar.gz", hash = "sha256:6590d7cebcc684b276b86aeb8b28986d78f81355a2edfa4eba96368e76bd6501"},
-]
-
-[package.dependencies]
-coincurve = ">=4.3.0"
-requests = "*"
-
-[package.extras]
-cache = ["lmdb"]
-cli = ["appdirs", "click", "privy", "tinydb"]
-
-[[package]]
 name = "certifi"
 version = "2024.8.30"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -1415,4 +1396,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "01692f35887866ce2166305b381c04fba95497c6a73d8e5e655a5232d2f5b49b"
+content-hash = "3a689fb95155a676fc5f9cd0f04c8c4b5d7ebefba3a58610f59c6248085b8b84"
