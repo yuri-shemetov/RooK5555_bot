@@ -14,6 +14,7 @@ class GoStates(StatesGroup):
     delete_user = State()
     everybody_users = State()
     everybody_users_coin = State()
+    everybody_users_choice = State()
     fees = State()
     go = State()
     is_only_day = State()
