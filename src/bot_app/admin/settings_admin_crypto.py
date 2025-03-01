@@ -3,15 +3,14 @@ from aiogram.dispatcher import FSMContext
 
 from bot_app import messages
 from bot_app.app import dp, bot, db_settings
-from bot_app.admin.info_currency import info_currency
-from bot_app.keybords import inline_answer_to_main, inline_setting
+from bot_app.keybords import inline_answer_to_main, inline_settings_for_crypto
 from bot_app.states import GoStates
 
-NAME = "settings_for_byn"
+NAME = "settings_for_crypto"
 
 
-# Setting
-@dp.callback_query_handler(lambda c: c.data == "setting", state=GoStates.setting)
+# Setting for crypto
+@dp.callback_query_handler(lambda c: c.data == NAME, state=GoStates.setting)
 async def button_click_call_back(
     callback_query: types.CallbackQuery, state: FSMContext
 ):
@@ -22,31 +21,31 @@ async def button_click_call_back(
         db_settings.add_settings_name(NAME)
         result = db_settings.get_full_data(NAME)
 
-    currency = info_currency()
-
     now_fees, now_percent, now_rate = result[0], result[1], result[2]
-    now_byn, min_amount, max_amount = result[3], result[4], result[5]
+    min_amount, max_amount = result[4], result[5]
 
     await bot.send_message(
         callback_query.from_user.id,
-        f"Мин. курс: {now_rate} BYN;\nКомиссия: {now_fees} BYN;\nПроцент: {now_percent} %;\n1USD: {now_byn} BYN;\
-            \nМин. сумма сделки: {min_amount} BYN;\nМaкс. сумма сделки: {max_amount} BYN;\nКурс продажи: {currency} BYN"
+        f"<b>Настройки CRYPTO</b>\n\nМин. курс: {now_rate} USD;\nКомиссия: {now_fees} USD;\nПроцент: {now_percent} %;\
+            \nМин. сумма сделки: {min_amount} USD;\nМaкс. сумма сделки: {max_amount} USD"
         + messages.SETTING,
-        reply_markup=inline_setting,
+        reply_markup=inline_settings_for_crypto,
+        parse_mode="HTML",
+        
     )
     await state.finish()
-    await GoStates.rate.set()
+    await GoStates.rate_for_crypto.set()
 
 
 # Upload Set_Rate
-@dp.callback_query_handler(lambda c: c.data == "rate", state=GoStates.rate)
+@dp.callback_query_handler(lambda c: c.data == "rate_for_crypto", state=GoStates.rate_for_crypto)
 async def button_click_call_back(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, "Введите минимальный курс, BYN")
+    await bot.send_message(callback_query.from_user.id, "Введите минимальный курс, USD")
 
 
 # Successful Set_Rate
-@dp.message_handler(content_types=["text"], state=GoStates.rate)
+@dp.message_handler(content_types=["text"], state=GoStates.rate_for_crypto)
 async def process_message(message: types.Message, state: FSMContext):
     try:
         async with state.proxy() as data:
@@ -61,18 +60,18 @@ async def process_message(message: types.Message, state: FSMContext):
 
 
 # Upload Set_Fees
-@dp.callback_query_handler(lambda c: c.data == "fees", state=GoStates.rate)
+@dp.callback_query_handler(lambda c: c.data == "fees_for_crypto", state=GoStates.rate_for_crypto)
 async def button_click_call_back(
     callback_query: types.CallbackQuery, state: FSMContext
 ):
     await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(callback_query.from_user.id, "Введите комиссию, BYN")
+    await bot.send_message(callback_query.from_user.id, "Введите комиссию, USD")
     await state.finish()
-    await GoStates.fees.set()
+    await GoStates.fees_for_crypto.set()
 
 
 # Successful Set_Fees
-@dp.message_handler(content_types=["text"], state=GoStates.fees)
+@dp.message_handler(content_types=["text"], state=GoStates.fees_for_crypto)
 async def process_message(message: types.Message, state: FSMContext):
     try:
         async with state.proxy() as data:
@@ -91,18 +90,18 @@ async def process_message(message: types.Message, state: FSMContext):
 
 
 # Upload Set pecent
-@dp.callback_query_handler(lambda c: c.data == "percent", state=GoStates.rate)
+@dp.callback_query_handler(lambda c: c.data == "percent_for_crypto", state=GoStates.rate_for_crypto)
 async def button_click_call_back(
     callback_query: types.CallbackQuery, state: FSMContext
 ):
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(callback_query.from_user.id, "Введите процент, %")
     await state.finish()
-    await GoStates.percent.set()
+    await GoStates.percent_for_crypto.set()
 
 
 # Successful Set pecent
-@dp.message_handler(content_types=["text"], state=GoStates.percent)
+@dp.message_handler(content_types=["text"], state=GoStates.percent_for_crypto)
 async def process_message(message: types.Message, state: FSMContext):
     try:
         async with state.proxy() as data:
@@ -120,53 +119,21 @@ async def process_message(message: types.Message, state: FSMContext):
         )
 
 
-# Upload Set_1USD=BYN
-@dp.callback_query_handler(lambda c: c.data == "usd_byn", state=GoStates.rate)
-async def button_click_call_back(
-    callback_query: types.CallbackQuery, state: FSMContext
-):
-    await bot.answer_callback_query(callback_query.id)
-    await bot.send_message(
-        callback_query.from_user.id, "Введите стоимость доллара, BYN"
-    )
-    await state.finish()
-    await GoStates.usd_byn.set()
-
-
-# Successful Set_1USD=BYN
-@dp.message_handler(content_types=["text"], state=GoStates.usd_byn)
-async def process_message(message: types.Message, state: FSMContext):
-    try:
-        async with state.proxy() as data:
-            data["text"] = message.text
-            user_message = float(data["text"])
-        db_settings.update_one_usd_rate(user_message, NAME)
-        await message.reply(
-            "Курс доллара успешно изменен!", reply_markup=inline_answer_to_main
-        )
-        await state.finish()
-        await GoStates.setting.set()
-    except:
-        await message.reply(
-            "Введите корректный курс, десятичную дробь пишите только точкой!"
-        )
-
-
 # Upload Set_min_amount
-@dp.callback_query_handler(lambda c: c.data == "min_amount", state=GoStates.rate)
+@dp.callback_query_handler(lambda c: c.data == "min_amount_for_crypto", state=GoStates.rate_for_crypto)
 async def button_click_call_back(
     callback_query: types.CallbackQuery, state: FSMContext
 ):
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(
-        callback_query.from_user.id, "Введите минимальную сумму сделки, BYN"
+        callback_query.from_user.id, "Введите минимальную сумму сделки, USD"
     )
     await state.finish()
-    await GoStates.min_amount.set()
+    await GoStates.min_amount_for_crypto.set()
 
 
 # Successful Set_min_amount
-@dp.message_handler(content_types=["text"], state=GoStates.min_amount)
+@dp.message_handler(content_types=["text"], state=GoStates.min_amount_for_crypto)
 async def process_message(message: types.Message, state: FSMContext):
     try:
         async with state.proxy() as data:
@@ -185,20 +152,20 @@ async def process_message(message: types.Message, state: FSMContext):
 
 
 # Upload Set_max_amount
-@dp.callback_query_handler(lambda c: c.data == "max_amount", state=GoStates.rate)
+@dp.callback_query_handler(lambda c: c.data == "max_amount_for_crypto", state=GoStates.rate_for_crypto)
 async def button_click_call_back(
     callback_query: types.CallbackQuery, state: FSMContext
 ):
     await bot.answer_callback_query(callback_query.id)
     await bot.send_message(
-        callback_query.from_user.id, "Введите максимальную сумму сделки, BYN"
+        callback_query.from_user.id, "Введите максимальную сумму сделки, USD"
     )
     await state.finish()
-    await GoStates.max_amount.set()
+    await GoStates.max_amount_for_crypto.set()
 
 
 # Successful Set_max_amount
-@dp.message_handler(content_types=["text"], state=GoStates.max_amount)
+@dp.message_handler(content_types=["text"], state=GoStates.max_amount_for_crypto)
 async def process_message(message: types.Message, state: FSMContext):
     try:
         async with state.proxy() as data:

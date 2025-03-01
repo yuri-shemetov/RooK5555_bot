@@ -323,3 +323,129 @@ class Bank:
     def close(self):
         """Close DB"""
         self.connection.close()
+
+
+class Settings:
+    def __init__(self, database):
+        self.connection = sqlite3.connect(database)
+        self.cursor = self.connection.cursor()
+        self.cursor.execute(
+            "CREATE TABLE IF NOT EXISTS settings ( \
+                        id INTEGER PRIMARY KEY, \
+                        name VARCHAR (30) NOT NULL UNIQUE,\
+                        fees DECIMAL DEFAULT 0,\
+                        percent DECIMAL DEFAULT 0,\
+                        min_rate DECIMAL DEFAULT 0,\
+                        one_usd_rate DECIMAL DEFAULT 0,\
+                        min_amount DECIMAL DEFAULT 0,\
+                        max_amount DECIMAL DEFAULT 0,\
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP)"
+        )
+
+
+    def add_settings_name(self, name):
+        with self.connection:
+            return self.cursor.execute(
+                "INSERT INTO `settings` (`name`) VALUES (?)", (name,),
+            )
+
+    def get_full_data(self, name):
+        with self.connection:
+            return self.cursor.execute(
+                "SELECT `fees`, `percent`, `min_rate`, `one_usd_rate`, `min_amount`, `max_amount` FROM `settings` WHERE `name` = ?",
+                (name,),
+            ).fetchone()
+        
+    def get_min_rate(self, name):
+        with self.connection:
+            return self.cursor.execute(
+                "SELECT `min_rate` FROM `settings` WHERE `name` = ?",
+                (name,),
+            ).fetchone()
+    
+    def get_fees(self, name):
+        with self.connection:
+            return self.cursor.execute(
+                "SELECT `fees` FROM `settings` WHERE `name` = ?",
+                (name,),
+            ).fetchone()
+        
+    def get_percent(self, name):
+        with self.connection:
+            return self.cursor.execute(
+                "SELECT `percent` FROM `settings` WHERE `name` = ?",
+                (name,),
+            ).fetchone()
+
+    def get_one_usd_rate(self, name):
+        with self.connection:
+            return self.cursor.execute(
+                "SELECT `one_usd_rate` FROM `settings` WHERE `name` = ?",
+                (name,),
+            ).fetchone()
+        
+    def get_min_amount(self, name):
+        with self.connection:
+            return self.cursor.execute(
+                "SELECT `min_amount` FROM `settings` WHERE `name` = ?",
+                (name,),
+            ).fetchone()
+        
+    def get_max_amount(self, name):
+        with self.connection:
+            return self.cursor.execute(
+                "SELECT `max_amount` FROM `settings` WHERE `name` = ?",
+                (name,),
+            ).fetchone()
+        
+    def update_min_rate(self, min_rate, name):
+        with self.connection:
+            return self.cursor.execute(
+                "UPDATE `settings` SET `min_rate` = ?"
+                "WHERE `name` = ? ",
+                (min_rate, name),
+            )
+
+    def update_fees(self, fees, name):
+        with self.connection:
+            return self.cursor.execute(
+                "UPDATE `settings` SET `fees` = ?"
+                "WHERE `name` = ? ",
+                (fees, name),
+            )
+    
+    def update_percent(self, percent, name):
+        with self.connection:
+            return self.cursor.execute(
+                "UPDATE `settings` SET `percent` = ?"
+                "WHERE `name` = ? ",
+                (percent, name),
+            )
+        
+    def update_one_usd_rate(self, one_usd_rate, name):
+        with self.connection:
+            return self.cursor.execute(
+                "UPDATE `settings` SET `one_usd_rate` = ?"
+                "WHERE `name` = ? ",
+                (one_usd_rate, name),
+            )
+    
+    def update_min_amount(self, min_amount, name):
+        with self.connection:
+            return self.cursor.execute(
+                "UPDATE `settings` SET `min_amount` = ?"
+                "WHERE `name` = ? ",
+                (min_amount, name),
+            )
+        
+    def update_max_amount(self, max_amount, name):
+        with self.connection:
+            return self.cursor.execute(
+                "UPDATE `settings` SET `max_amount` = ?"
+                "WHERE `name` = ? ",
+                (max_amount, name),
+            )
+
+    def close(self):
+        """Close DB"""
+        self.connection.close()

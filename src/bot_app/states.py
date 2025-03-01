@@ -1,7 +1,5 @@
 from aiogram.dispatcher.filters.state import State, StatesGroup
 
-from bot_app.open_settings import min_amount
-
 
 class GoStates(StatesGroup):
     address = State()
@@ -16,13 +14,17 @@ class GoStates(StatesGroup):
     everybody_users_coin = State()
     everybody_users_choice = State()
     fees = State()
+    fees_for_crypto = State()
     go = State()
     is_only_day = State()
     max_amount = State()
+    max_amount_for_crypto = State()
     min_amount = State()
+    min_amount_for_crypto = State()
     notification = State()
     pay = State()
     percent = State()
+    percent_for_crypto = State()
     photo = State()
     photo_ok = State()
     start = State()
@@ -30,6 +32,12 @@ class GoStates(StatesGroup):
     turn_off = State()
     turn_off_btc = State()
     rate = State()
+    rate_for_crypto = State()
+
+    rate_btc_usdt = State()
+    rate_btc_usdt_calculate_btc = State()
+    rate_btc_usdt_calculate_usdt = State()
+    
     remove_requisiters_bank = State()
     requisiters = State()
     usd = State()

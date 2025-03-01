@@ -34,19 +34,27 @@ inline_button_cancel = InlineKeyboardButton("Отменить", callback_data="c
 inline_button_сheck_users = InlineKeyboardButton("Проверка Users", callback_data="check_users")
 inline_button_continue = InlineKeyboardButton("Продолжить", callback_data="OK")
 inline_button_currency_rate = InlineKeyboardButton("Мин. курс", callback_data="rate")
+inline_button_currency_rate_for_crypto = InlineKeyboardButton("Мин. курс", callback_data="rate_for_crypto")
 inline_button_delete_user = InlineKeyboardButton("Удалить User", callback_data="delete_user")
 inline_button_fees = InlineKeyboardButton("Комиссия", callback_data="fees")
+inline_button_fees_for_crypto = InlineKeyboardButton("Комиссия", callback_data="fees_for_crypto")
 inline_button_lets_go = InlineKeyboardButton("Вперед!", callback_data="replay_new")
 inline_button_min_amount = InlineKeyboardButton("Мин. сумма сделки", callback_data="min_amount")
 inline_button_max_amount = InlineKeyboardButton("Макс. сумма сделки", callback_data="max_amount")
+inline_button_min_amount_for_crypto = InlineKeyboardButton("Мин. сумма сделки", callback_data="min_amount_for_crypto")
+inline_button_max_amount_for_crypto = InlineKeyboardButton("Макс. сумма сделки", callback_data="max_amount_for_crypto")
 inline_button_new = InlineKeyboardButton("Согласен / создать новую заявку", callback_data="new")
 inline_button_notification = InlineKeyboardButton("Рассылка сообщений", callback_data="notification")
 inline_button_paid = InlineKeyboardButton("Оплачено", callback_data="paid")
 inline_button_percent = InlineKeyboardButton("Процент", callback_data="percent")
+inline_button_percent_for_crypto = InlineKeyboardButton("Процент", callback_data="percent_for_crypto")
 inline_button_photo_ok = InlineKeyboardButton("OK", callback_data="photo_ok")
 inline_button_replay_new = InlineKeyboardButton("Начать сначала", callback_data="replay_new")
 inline_button_requisites = InlineKeyboardButton("Реквизиты/Банк", callback_data="applications")
+
 inline_button_setting = InlineKeyboardButton("🛠 Настройки", callback_data="setting")
+inline_button_settings_for_crypto = InlineKeyboardButton("🛠 Настройки CRYPTO", callback_data="settings_for_crypto")
+
 inline_button_settings_crypto = InlineKeyboardButton("⚖️ Обмен Монет", callback_data="settings_crypto")
 inline_button_stop = InlineKeyboardButton("⛔️ STOP ⛔️", callback_data="stop")
 inline_button_stop_bot_server = InlineKeyboardButton("⛔️ STOP BOT SERVER", callback_data="stop_bot_server")
@@ -84,6 +92,7 @@ inline_percent = InlineKeyboardMarkup()
 inline_persona = InlineKeyboardMarkup()
 inline_photo_ok = InlineKeyboardMarkup()
 inline_setting = InlineKeyboardMarkup(row_width=2)
+inline_settings_for_crypto = InlineKeyboardMarkup(row_width=2)
 inline_stop = InlineKeyboardMarkup()
 inline_rate_coins = InlineKeyboardMarkup(row_width=2)
 inline_rate_coins_btc_hidden = InlineKeyboardMarkup(row_width=2)
@@ -98,6 +107,7 @@ inline_users = InlineKeyboardMarkup(row_width=2)
 
 inline_admin_and_button_turn_on.add(
     inline_button_setting,
+    inline_button_settings_for_crypto,
     inline_button_requisites,
     inline_button_balance_btc,
     inline_button_black_list,
@@ -109,6 +119,7 @@ inline_admin_and_button_turn_on.add(
 )
 inline_admin_and_button_turn_off.add(
     inline_button_setting,
+    inline_button_settings_for_crypto,
     inline_button_requisites,
     inline_button_balance_btc,
     inline_button_сheck_users,
@@ -170,6 +181,14 @@ inline_setting.add(
     inline_button_usd_byn,
     inline_button_min_amount,
     inline_button_max_amount,
+    inline_button_answer_to_main,
+)
+inline_settings_for_crypto.add(
+    inline_button_currency_rate_for_crypto, 
+    inline_button_fees_for_crypto,
+    inline_button_percent_for_crypto,
+    inline_button_min_amount_for_crypto,
+    inline_button_max_amount_for_crypto,
     inline_button_answer_to_main,
 )
 inline_stop.row(inline_button_answer_to_main, inline_button_stop,)

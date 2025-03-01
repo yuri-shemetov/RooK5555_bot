@@ -9,6 +9,7 @@ from bot_app.admin import (
     choice_requisites,
     notification,
     settings_admin,
+    settings_admin_crypto,
 )
 from bot_app.app import dp
 

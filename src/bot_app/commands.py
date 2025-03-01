@@ -210,7 +210,7 @@ async def button_click_call_back(callback_query: types.CallbackQuery):
 async def choice_rate_btc_coin_for_usdt(callback_query: types.CallbackQuery):
     try:
         await callback_query.answer()
-        await GoStates.go.set() # FIX ME
+        await GoStates.rate_btc_usdt.set() # FIXME
         await bot.send_message(
             callback_query.from_user.id,
             messages.CHOISE_RATE_MESSAG_COIN,
